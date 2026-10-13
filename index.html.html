@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Dişli Salon · Telefon</title>
+<style>
+:root{--yellow:#ffd23f}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#4a1a7a,#14083a 70%) fixed;color:#fff;font:500 17px/1.35 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.btn{font:800 1em system-ui,sans-serif;border:0;border-radius:16px;padding:12px 20px;background:#ffd23f;color:#1d1147;cursor:pointer;box-shadow:0 5px 0 #0007}.btn.yes{background:#2ee6a6}.btn.no{background:#ff7aa8}
+@keyframes flt{from{transform:translateY(0)}to{transform:translateY(-8px)}}@keyframes twk{from{transform:scale(.5);opacity:.4}to{transform:scale(1.2);opacity:1}}
+/* telefon */
+
+#vpPh{width:100%;max-width:520px;margin:0 auto;padding:16px;display:flex;align-items:center;min-height:100%}.phCard{width:100%;background:#2a1670;border:4px solid #ffffff33;border-radius:26px;padding:18px 18px 22px;text-align:center;box-shadow:0 10px 0 #0006}.phCard h2{margin:0 0 6px;font-size:clamp(24px,7vw,34px)}.phCard p{margin:6px 0 12px;opacity:.9}.phCard input{display:block;width:100%;margin:8px 0;font:700 1.3em system-ui,sans-serif;padding:12px;border-radius:14px;border:3px solid #ffffff44;background:#0006;color:#fff;text-align:center}.phCard .btn{display:block;width:100%;margin:10px 0 0;font-size:1.25em;padding:14px}.phErr{color:#ff8a8a;min-height:1.4em}.phNick{font-size:2em;font-weight:900;color:var(--yellow);margin:8px 0}.muted{opacity:.7;font-size:.9em}
+.phCard.sleep{background:#050316;border-color:#2a2a5a}.phCard.dead{background:#1a1a1a;filter:grayscale(1)}.phCard.role{border-color:var(--c);box-shadow:0 0 36px var(--c),0 10px 0 #0006}.phRole{font-size:min(30vw,150px);animation:flt 2s ease-in-out infinite alternate}.phMate{background:#ff3b6b33;border:3px solid #ff3b6b;border-radius:16px;padding:6px 10px;margin:8px 0}
+.phTm{position:relative;height:30px;background:#0006;border-radius:20px;overflow:hidden;margin:8px 0}.phBar{height:100%;width:100%;background:linear-gradient(90deg,#2ee6a6,#ffd23f);transition:width .4s linear}.phTm b{position:absolute;inset:0;display:grid;place-items:center;color:#1d1147}
+.phList{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:52vh;overflow:auto}.phPick{font:800 1.15em system-ui,sans-serif;padding:16px 8px;border-radius:16px;border:4px solid #1d1147;background:#ffd23f;color:#1d1147;box-shadow:0 5px 0 #0007}.phPick.sel{background:#2ee6a6;transform:scale(.97)}.phPick.skip{background:#ff9ad5;grid-column:1/-1}
+.phRoles{display:grid;gap:6px;text-align:left}.phRoles>div{background:#0005;border-left:6px solid var(--c);border-radius:10px;padding:6px 10px}
+
+/* ===== karakter tasarımı (telefon) ===== */
+.phCard.des{padding:10px 10px 14px;max-width:520px}.dsPrev{height:min(36vh,300px);display:flex;justify-content:center;background:radial-gradient(circle at 50% 40%,#6a4ab8,#2a1670);border-radius:20px;border:3px solid #ffffff33;margin-bottom:8px;overflow:hidden}.dsPrev svg{height:100%;width:auto;display:block}.dsPrev.small{height:210px}
+.dsTabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;-webkit-overflow-scrolling:touch}.dt{flex:none;font:700 12px system-ui,sans-serif;padding:6px 10px;border-radius:14px;border:3px solid #1d1147;background:#ffffff22;color:#fff;min-width:62px}.dt span{display:block;font-size:20px}.dt.sel{background:#ffd23f;color:#1d1147}
+.dsBody{max-height:26vh;overflow:auto;text-align:left;padding:2px 4px}.dsBody h4{margin:8px 0 4px;color:#ffd23f;font-size:14px}.dsSw{display:flex;flex-wrap:wrap;gap:8px}.sw{width:38px;height:38px;border-radius:50%;border:4px solid #1d1147;box-shadow:0 3px 0 #0007}.sw.sel{outline:4px solid #fff;transform:scale(1.1)}
+.dsOp{display:flex;flex-wrap:wrap;gap:6px}.opb{font:700 13px system-ui,sans-serif;padding:8px 10px;border-radius:12px;border:3px solid #1d1147;background:#fff;color:#1d1147;box-shadow:0 3px 0 #0007}.opb.sel{background:#2ee6a6}.opb.tgl.sel{background:#ff7aa8}
+.phCard.des #vpRdy{margin-top:10px;font-size:1.2em;padding:12px}
+.phCard.scold{background:#3a0a14;border-color:#ff3b3b;animation:scs .12s linear infinite alternate}.phCard.scold.s1{animation-duration:.2s}@keyframes scs{from{transform:translateX(calc(var(--sh)*-1))}to{transform:translateX(var(--sh))}}
+.scG{width:min(46vw,200px);margin:0 auto}.scG svg{width:100%;display:block;overflow:visible}.scT{font-weight:900;line-height:1.15;margin:8px 0;text-shadow:0 2px 0 #000;color:#ffe0e0}.scN{opacity:.8;font-size:13px}.phCard.scold .btn{margin-top:12px}
+.phCard.fix{background:#14381f;border-color:#2ee6a6}.fixPrev{position:relative;margin-top:8px}.fixPrev .spk{position:absolute;right:20%;top:10%;font-size:44px;animation:twk .5s ease-in-out infinite alternate;font-style:normal}
+
+small{opacity:.8}
+</style></head><body>
+<div id="vpPh"></div>
+<script>
+const $=id=>document.getElementById(id);
+const VR={V:{n:'Vampir Estetisyen',e:'🧛',c:'#ff3b6b'},D:{n:'Cilt Bakım Uzmanı',e:'🩺',c:'#2ee6a6'},H:{n:'Kuaför',e:'✂️',c:'#ffd23f'},C:{n:'Müşteri',e:'💆',c:'#ff9ad5'}};
+const vpEsc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let PH=null;
+function wingsSVG(){const w='<path d="M14 100C-6 76 -30 46 -44 2C-26 12 -18 10 -10 4C-12 26 -4 40 10 52C8 40 12 30 18 24C16 46 20 76 14 100Z" fill="#7a0d18" stroke="#2a0008" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 92C-4 70 -24 44 -36 12M10 80C-2 64 -10 54 -14 30" stroke="#3a0010" stroke-width="1.6" fill="none"/>';const i=`<g transform="translate(14 70) scale(1.9) translate(-14 -70)"><g class="bw">${w}</g></g>`;return `<g>${i}</g><g transform="translate(200 0) scale(-1 1)">${i}</g>`}
+function fframe(){let s='<g class="ff">';for(let i=0;i<20;i++){const a=i*Math.PI/10,a1=a-.11,a2=a+.11,r0=98,r1=112+(i%2)*6;s+=`<path d="M${100+r0*Math.cos(a1)} ${100+r0*Math.sin(a1)}L${100+r1*Math.cos(a)} ${100+r1*Math.sin(a)}L${100+r0*Math.cos(a2)} ${100+r0*Math.sin(a2)}Z" fill="${i%2?'#ffd23f':'#ff6a00'}" stroke="#7a1000" stroke-width="1"/>`}return s+'</g><circle cx="100" cy="100" r="98" fill="none" stroke="#2a0000" stroke-width="7"/><circle cx="100" cy="100" r="98" fill="none" stroke="#ff4500" stroke-width="3"/>'}
+function armSVG(f){return `<g><path d="M150 176Q196 172 222 146" stroke="#b34f2b" stroke-width="26" stroke-linecap="round" fill="none"/><path d="M150 176Q196 172 222 146" stroke="#d7783f" stroke-width="18" stroke-linecap="round" fill="none"/><path d="M218 150q8-14 22-12l16-2q6 1 3 7l-15 6q-3 12-20 16z" fill="${f}" stroke="#c49a6c" stroke-width="2.5" stroke-linejoin="round"/><path d="M241 136l22-3" stroke="${f}" stroke-width="7" stroke-linecap="round"/><path d="M241 136l22-3" stroke="#c49a6c" stroke-width="1.5" stroke-linecap="round" opacity=".5"/></g>`}
+
+function gizem(L,o={}){L=Math.max(0,Math.min(10,L));if(o.dv)L=Math.max(L,6);if(o.pt||o.ag)L=Math.max(L,4);const t=L/10,bu=o.bu,rb=o.rb,dv=o.dv;
+ const f=bu?'#8d786a':dv?'#e57a62':lc('#f8d9c2','#e23a1e',t),fd=bu?'#6f5d51':dv?'#c0553f':lc('#e9b999','#b8260f',t),bg=rb?'#ffe7a8':dv?'#4a0a00':lc('#ffe27a','#ff3b1f',t);
+ const a=o.sp?-6:L*2.4,dy=o.sp?-10:L*.5,ry=L<2?-5:0,tt=Math.max(0,L-2);
+ const E=[[76,'eL'],[124,'eR']];let eyes;
+ if(bu)eyes=E.map(([x])=>`<circle cx="${x}" cy="96" r="13" fill="#fff" stroke="#222" stroke-width="2.5"/><circle cx="${x}" cy="96" r="7" fill="none" stroke="#222" stroke-width="2.5"/><circle cx="${x}" cy="96" r="2.5" fill="#222"/>`).join('');
+ else{eyes=E.map(([x,c])=>`<path d="M${x-16} 98Q${x} 78 ${x+16} 98Q${x} 112 ${x-16} 98Z" fill="#fff"/><g clip-path="url(#${c})"><circle cx="${x}" cy="97" r="10.5" fill="${dv?'#ffd400':'url(#ir)'}"/><circle cx="${x}" cy="97" r="4.6" fill="#111"/><circle cx="${x+4}" cy="92.5" r="${rb?4:3}" fill="#fff"/><circle cx="${x-3.5}" cy="102" r="1.4" fill="#fff" opacity=".8"/></g>`).join('');
+  eyes+=L>=3?`<g clip-path="url(#eL)"><polygon points="54,66 98,66 98,${87+tt*1.4} 54,87" fill="${f}"/></g><g clip-path="url(#eR)"><polygon points="102,66 146,66 146,87 102,${87+tt*1.4}" fill="${f}"/></g><path d="M62 87L96 ${87+tt*1.2}M138 87L104 ${87+tt*1.2}M62 87L57 83M138 87L143 83" stroke="#1c1210" stroke-width="3" stroke-linecap="round"/>`:`<ellipse cx="76" cy="85" rx="15" ry="5" fill="#eaeef4" opacity=".6"/><ellipse cx="124" cy="85" rx="15" ry="5" fill="#eaeef4" opacity=".6"/><path d="M59 99Q76 77 93 98M107 98Q124 77 141 99M59 99L54 94M141 99L146 94" stroke="#1c1210" stroke-width="3.1" fill="none" stroke-linecap="round"/><path d="M63 105Q76 112 89 105M111 105Q124 112 137 105" stroke="#7a5a4e" stroke-width="1" fill="none" opacity=".45"/>`}
+ let m;
+ if(bu)m='<ellipse cx="100" cy="132" rx="7" ry="9" fill="#3b0f0f"/>';
+ else if(rb)m='<path d="M84 125Q100 152 116 125Z" fill="#7a1f33"/><path d="M86 126Q100 132 114 126" stroke="#fff" stroke-width="3.5" fill="none"/>';
+ else if(L<2)m='<path d="M87 129Q94 125 100 127Q107 123 114 125Q107 138 100 138Q93 138 87 129Z" fill="#cc6f7c"/><path d="M87 129Q100 134 114 125" stroke="#9c4a56" stroke-width="1.4" fill="none"/><ellipse cx="100" cy="134" rx="5" ry="1.6" fill="#fff" opacity=".45"/>';
+ else if(L<4)m='<path d="M88 132Q100 135 112 131" stroke="#a84a58" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
+ else if(L<6)m='<path d="M88 137Q100 125 112 137" stroke="#a84a58" stroke-width="3.4" fill="none" stroke-linecap="round"/>';
+ else if(L<8)m='<rect x="86" y="125" width="28" height="13" rx="3.5" fill="#fff" stroke="#7a2030" stroke-width="2.4"/><path d="M93 125v13M100 125v13M107 125v13" stroke="#bbb"/>';
+ else{const r=7+(L-7)*1.8;m=`<ellipse cx="100" cy="132" rx="15" ry="${r}" fill="#5a0e1e"/><ellipse cx="100" cy="${132+r*.5}" rx="9" ry="${r*.45}" fill="#e0707f"/><rect x="87" y="${133-r}" width="26" height="5" rx="2" fill="#fff"/>`}
+ if(dv)m='<path d="M80 124Q100 152 120 124Z" fill="#4a0e1e"/><path d="M88 125l5 11l5-11M102 125l5 11l5-11" fill="#fff"/>';
+ if(o.lf){eyes='<path d="M62 94Q76 78 90 94M110 94Q124 78 138 94" stroke="#1c1210" stroke-width="4.6" fill="none" stroke-linecap="round"/><ellipse cx="76" cy="84" rx="15" ry="4" fill="#eaeef4" opacity=".6"/><ellipse cx="124" cy="84" rx="15" ry="4" fill="#eaeef4" opacity=".6"/><path d="M60 98q-7 9-3 15q7-5 3-15zM140 98q7 9 3 15q-7-5-3-15z" fill="#8fd3ff"/>';m='<path d="M82 120Q100 156 118 120Z" fill="#7a1f33"/><path d="M84 121Q100 129 116 121" stroke="#fff" stroke-width="4" fill="none"/><ellipse cx="100" cy="142" rx="9" ry="5" fill="#e0707f"/>'}
+ if(o.sp){eyes=[76,124].map(x=>`<ellipse cx="${x}" cy="94" rx="15" ry="14" fill="#fff" stroke="#1c1210" stroke-width="2"/><circle cx="${x}" cy="94" r="4.5" fill="#243016"/><circle cx="${x+2}" cy="91" r="1.8" fill="#fff"/>`).join('');m='<ellipse cx="100" cy="132" rx="9" ry="12" fill="#5a0e1e"/><ellipse cx="100" cy="138" rx="5" ry="4" fill="#e0707f"/>'}
+ const br=`<path d="M56 78Q74 63 96 72" transform="translate(0 ${dy}) rotate(${a} 76 72)"/><path d="M104 72Q126 63 144 78" transform="translate(0 ${dy+ry}) rotate(${-a} 124 72)"/>`;
+ const steam=L>=5?`<g class="gzs">${[[34,104,0],[166,104,.6],[30,84,1.2],[170,84,1.8]].slice(0,L>=8?4:2).map(([x,y,d])=>`<circle cx="${x}" cy="${y}" r="8" fill="#fff" opacity=".8" style="animation-delay:${d}s"/>`).join('')}</g>`:'';
+ const fire=L>=9&&!bu?'<g class="gzf"><path d="M52 26Q42 6 58 -6Q58 10 70 10Q70 -8 86 -12Q86 6 98 6Q102 -10 116 -12Q114 8 128 10Q140 -4 146 -8Q148 12 142 26Z" fill="#ff7a00"/><path d="M74 24Q72 8 86 2Q88 12 98 10Q110 6 114 0Q118 14 128 24Z" fill="#ffd23f"/></g>':'';
+ const extra=(bu?'<path d="M50 26L36 -4L66 14L76 -10L92 12L104 -12L114 12L134 -8L132 22L152 -4L152 28Z" fill="#2a1812"/><text x="6" y="34" font-size="22">💫</text><text x="166" y="34" font-size="22">💫</text>':'')+(rb?'<ellipse cx="100" cy="0" rx="32" ry="7" fill="none" stroke="#ffd23f" stroke-width="4"/><text x="6" y="46" font-size="24">✨</text><text x="166" y="42" font-size="24">✨</text><text x="12" y="128" font-size="20">💖</text><text x="164" y="126" font-size="20">💖</text>':'');
+ const ch=rb?.5:.18+t*.4,hoop='<g fill="none" stroke="#f0c75a" stroke-width="2.6"><circle cx="44" cy="136" r="9"/><circle cx="44" cy="140" r="5.5"/><circle cx="156" cy="136" r="9"/><circle cx="156" cy="140" r="5.5"/></g>';
+ const _o=`<svg class="gz" viewBox="0 -12 200 212" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">${dv&&!o.hd?wingsSVG():''}<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241410"/><stop offset=".55" stop-color="#33201a"/><stop offset="1" stop-color="#b57a4a"/></linearGradient><radialGradient id="ir"><stop offset="0" stop-color="#243016"/><stop offset=".45" stop-color="#93aa5e"/><stop offset="1" stop-color="#4e5d2c"/></radialGradient><pattern id="sp" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="#b34f2b"/><path d="M7 1L13 7L7 13L1 7Z" fill="none" stroke="#e8935a" stroke-width="1.4"/><circle cx="7" cy="7" r="1.8" fill="#6e2a1b"/></pattern><clipPath id="cc"><circle cx="100" cy="100" r="98"/></clipPath><clipPath id="eL"><path d="M60 98Q76 78 92 98Q76 112 60 98Z"/></clipPath><clipPath id="eR"><path d="M108 98Q124 78 140 98Q124 112 108 98Z"/></clipPath></defs>
+${o.hd?'':`<circle cx="100" cy="100" r="98" fill="${bg}"/>`}<g${o.hd?'':' clip-path="url(#cc)"'}>
+<path d="M30 112C20 30 58 2 100 2C142 2 180 30 170 112L184 200L16 200Z" fill="url(#hg)"/>
+<path d="M90 138h20v28q-10 8-20 0z" fill="${fd}"/>
+<path d="M26 200Q32 168 78 160L100 184L122 160Q168 168 174 200Z" fill="url(#sp)"/>
+<path d="M89 160L100 184L111 160Z" fill="${fd}"/>
+<polygon points="78,160 100,184 84,192 62,168" fill="#d7783f" stroke="#7a331c" stroke-width="1.4"/><polygon points="122,160 100,184 116,192 138,168" fill="#d7783f" stroke="#7a331c" stroke-width="1.4"/>
+<path d="M91 162Q100 180 109 162" stroke="#d3dae1" stroke-width="1.6" fill="none"/><path d="M100 174q-5 8 0 12q5-4 0-12z" fill="#eaf6ff" stroke="#8aa"/>
+<path d="M48 90C48 56 72 38 100 38C128 38 152 56 152 90C152 118 132 144 100 146C68 144 48 118 48 90Z" fill="${f}"/>
+<ellipse cx="100" cy="145" rx="16" ry="3" fill="${fd}" opacity=".3"/>
+<ellipse cx="64" cy="118" rx="10" ry="6" fill="#ff5a7a" opacity="${ch}"/><ellipse cx="136" cy="118" rx="10" ry="6" fill="#ff5a7a" opacity="${ch}"/>
+<g fill="#c98f6e" opacity=".5"><circle cx="70" cy="114" r="1"/><circle cx="76" cy="118" r="1"/><circle cx="124" cy="118" r="1"/><circle cx="130" cy="114" r="1"/><circle cx="100" cy="110" r="1"/></g>
+${bu?'<ellipse cx="100" cy="58" rx="28" ry="9" fill="#000" opacity=".35"/><ellipse cx="66" cy="122" rx="12" ry="7" fill="#000" opacity=".3"/><ellipse cx="136" cy="118" rx="10" ry="6" fill="#000" opacity=".3"/>':''}
+<path d="M100 32C58 32 36 66 38 112C39 144 32 172 22 200L54 200C54 164 54 134 56 108C58 80 80 56 100 46Z" fill="url(#hg)"/><path d="M100 32C142 32 164 66 162 112C161 144 168 172 178 200L146 200C146 164 146 134 144 108C142 80 120 56 100 46Z" fill="url(#hg)"/>
+<g stroke="#8a6a58" stroke-width="2.2" fill="none" opacity=".5" stroke-linecap="round"><path d="M50 70C44 100 44 150 36 190"/><path d="M150 70C156 100 156 150 164 190"/><path d="M66 40Q100 22 134 40" stroke-width="3.5"/></g>
+${hoop}<circle cx="49" cy="124" r="1.8" fill="#f0c75a"/><circle cx="151" cy="124" r="1.8" fill="#f0c75a"/>
+${eyes}<g stroke="#241410" stroke-width="5.6" stroke-linecap="round" fill="none">${br}</g>
+<path d="M100 104Q96 113 99 117Q103 119 107 115" stroke="#d9a98a" stroke-width="1.8" fill="none"/><circle cx="107" cy="115" r="3" fill="none" stroke="#f0c75a" stroke-width="1.6"/>
+${m}
+${L>=7&&!bu?'<path d="M106 52l6-2l-2 7l7-1l-5 8" stroke="#d01010" stroke-width="2.4" fill="none" stroke-linecap="round"/>':''}
+</g>${steam}${fire}${extra}${o.pt&&!o.hd?armSVG(f):''}${dv?'<path d="M62 40Q38 2 80 16Q64 24 72 42Z" fill="#c0392b" stroke="#600" stroke-width="2"/><path d="M138 40Q162 2 120 16Q136 24 128 42Z" fill="#c0392b" stroke="#600" stroke-width="2"/>':''}${o.hd?'':dv?fframe():'<circle cx="100" cy="100" r="98" fill="none" stroke="#1d1147" stroke-width="5"/>'}</svg>`;if(o.hd)return _o.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'').replace(/<defs>[\s\S]*?<\/defs>/,'');return _o}
+
+// ===== Hesapsız canlı bağlantı (PeerJS / WebRTC) =====
+const PNP='dsl-gh-';
+function pnLoad(){return new Promise((res,rej)=>{if(window.Peer)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>res();s.onerror=()=>rej({code:'peerjs_yuklenemedi'});document.head.appendChild(s)})}
+const PNCFG={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]},debug:0};
+// telefon tarafı
+async function pnJoin(code){await pnLoad();return new Promise((resolve,reject)=>{const peer=new Peer(undefined,PNCFG);const ev={},mine={};let conn=null,opened=false,left=false;
+ const net={mode:'peer',peer,
+  presence:async p=>{Object.assign(mine,p);try{if(conn&&conn.open)conn.send({t:'p',p})}catch(e){}},
+  peers:()=>[{peer:peer.id,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:mine,updatedAt:Date.now()}],
+  onPeers:f=>()=>{},
+  on:(t,f)=>{(ev[t]=ev[t]||[]).push(f);return()=>{}},
+  emit:async()=>{},
+  leave:async()=>{left=true;try{peer.destroy()}catch(e){}}};
+ const link=()=>{conn=peer.connect(PNP+code,{reliable:true});const to=setTimeout(()=>{if(!opened){reject({code:'tahta_bulunamadi'})}},12000);
+  conn.on('open',()=>{clearTimeout(to);const first=!opened;opened=true;conn.send({t:'p',p:{...mine}});if(first)resolve(net)});
+  conn.on('data',d=>{if(d&&d.t==='e')(ev[d.topic]||[]).forEach(f=>f({topic:d.topic,data:d.data}))});
+  const re=()=>{if(left)return;if(!opened){reject({code:'tahta_bulunamadi'});return}setTimeout(()=>{if(!left)link()},2000)};conn.on('close',re);conn.on('error',re)};
+ peer.on('open',link);peer.on('error',e=>{if(!opened)reject({code:e.type||'hata'})});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}})})}
+
+// <AVATAR-BEGIN>
+const GSK='#f6d3b8',GSD='#e0ae90';
+const GHC=[['Siyah','#1c1412'],['Kahve','#4a2a18'],['Açık kahve','#9a6a3a'],['Sarı','#f0c860'],['Kızıl','#c4501c'],['Pembe','#ff7ab8'],['Mavi','#4aa0ff'],['Mor','#9a5ae0']];
+const GEC=[['Kahve','#5a3418'],['Yeşil','#3c9a50'],['Mavi','#3a7ae0'],['Ela','#a8742a'],['Gri','#7a8a9a'],['Mor','#8a4ac8']];
+const GLC=[['Pembe','#f06a8a'],['Kırmızı','#d6203a'],['Şeftali','#f09a7a'],['Mor','#a03a8a'],['Doğal','#d98a86'],['Mercan','#ff6a5a']];
+const GHS=['Uzun','Kuyruk','Küt','Topuz','Kıvırcık'],GMS=['Gülümseme','Açık gülüş','Düz ağız','😜 Dişli sırıtış','😜 Dil çıkaran','😜 Balık dudak','😜 Dalgalı ağız'],GBS=['Yay kaş','Düz kaş','Kalın kaş','😜 Dik kaş','😜 Tek kaş','😜 Üzgün kaş'],GNS=['Küçük','Sivri','Yuvarlak','😜 Palyaço','😜 Domuz','😜 Pinokyo'];
+const GAC=['Burun küpesi','Kaş piercingi','Dudak halkası','Dev halka küpe','Şaşalı küpe','Güneş gözlüğü','Gerdanlık','Taç'],GTP=['Beyaz polo (Gazi)','Crop top','Renkli sweatshirt'],GBT=['Siyah pantolon','Mini etek','Mini şort'],GMK=['Makyajsız','Göz makyajı','Tam makyaj'];
+const gCfg0=()=>({hs:0,hc:1,ey:0,lc:0,ms:0,bw:0,ns:0,acc:0,coat:1,tp:0,bt:0,mk:0});
+const gEnc=c=>[c.hs,c.hc,c.ey,c.lc,c.ms,c.bw,c.ns,c.acc,c.coat,c.tp,c.bt,c.mk].join('.');
+function gDec(s){const a=String(s||'').split('.').map(Number);if(a.length<12||a.some(isNaN))return gCfg0();return{hs:a[0],hc:a[1],ey:a[2],lc:a[3],ms:a[4],bw:a[5],ns:a[6],acc:a[7],coat:a[8],tp:a[9],bt:a[10],mk:a[11]}}
+function gViol(c){const v=[];if(c.acc)v.push('aksesuar');if(!c.coat)v.push('önlüksüz');if(c.tp||c.bt)v.push('kıyafet');if(c.mk)v.push('makyaj');return v}
+function girlSVG(c,o={}){c=c||gCfg0();const hc=GHC[c.hc%8][1],ec=GEC[c.ey%6][1],lc=c.mk==2?'#e0102a':GLC[c.lc%6][1],hd=o.head;
+ const dk=(h,k)=>h;let back='',front='';
+ const H=[ // [arka, ön]
+  [`<path d="M38 74C30 32 56 8 80 8C104 8 130 32 122 74L130 214Q80 230 30 214Z" fill="${hc}"/>`,`<path d="M42 78C36 42 54 22 80 22C106 22 124 42 118 78C112 56 100 40 80 40C62 40 48 56 42 78Z" fill="${hc}"/><path d="M40 78C32 124 36 160 28 204L46 200C48 160 46 118 50 88Z" fill="${hc}"/><path d="M120 78C128 124 124 160 132 204L114 200C112 160 114 118 110 88Z" fill="${hc}"/>`],
+  [`<path d="M106 22C146 14 156 76 140 128C134 96 128 66 106 52Z" fill="${hc}"/><circle cx="112" cy="38" r="5" fill="#ff4f9a"/>`,`<path d="M40 78C34 38 56 14 82 14C108 14 126 38 120 78C116 56 100 40 80 40C60 40 46 56 40 78Z" fill="${hc}"/>`],
+  [`<path d="M36 82C28 34 56 8 80 8C104 8 132 34 124 82L128 126Q80 138 32 126Z" fill="${hc}"/>`,`<path d="M42 70C48 40 66 26 80 26C94 26 112 40 118 70C104 54 94 50 80 50C66 50 56 54 42 70Z" fill="${hc}"/><path d="M40 80L38 124L52 120L50 90Z M120 80L122 124L108 120L110 90Z" fill="${hc}"/>`],
+  [`<circle cx="46" cy="22" r="17" fill="${hc}"/><circle cx="114" cy="22" r="17" fill="${hc}"/><path d="M38 78C32 36 56 14 80 14C104 14 128 36 122 78Z" fill="${hc}"/>`,`<path d="M42 78C38 44 56 24 80 24C104 24 122 44 118 78C112 58 98 42 80 42C62 42 48 58 42 78Z" fill="${hc}"/>`],
+  [`<circle cx="80" cy="46" r="54" fill="${hc}"/><circle cx="34" cy="64" r="16" fill="${hc}"/><circle cx="126" cy="64" r="16" fill="${hc}"/><circle cx="48" cy="22" r="18" fill="${hc}"/><circle cx="112" cy="22" r="18" fill="${hc}"/><circle cx="80" cy="-4" r="20" fill="${hc}"/>`,`<path d="M44 76C40 50 58 38 80 38C102 38 120 50 116 76C108 60 96 52 80 52C64 52 52 60 44 76Z" fill="${hc}"/>`]][c.hs%5];back=H[0];front=H[1];
+ const outl='stroke="#1d1147" stroke-width="2.6" stroke-linejoin="round"';
+ const bodyCol=c.tp==1?'#ff4f9a':c.tp==2?'#8a5aff':'#ffffff',bodyStr=c.tp==0?'#b8c2d8':'#1d1147';
+ let b='';
+ // bacaklar / alt
+ const legs=(y0)=>`<path d="M62 ${y0}H78L76 294H64Z M82 ${y0}H98L96 294H84Z" fill="${GSK}" stroke="${GSD}" stroke-width="2"/>`;
+ const shoes='<path d="M58 292Q56 308 70 310H86Q82 300 78 292Z M82 292Q78 300 74 310H90Q104 308 102 292Z" fill="#1b1b2b" stroke="#000" stroke-width="2"/><path d="M58 306H88M74 306H104" stroke="#fff" stroke-width="3"/>';
+ if(c.bt==0)b+=`<path d="M60 202H100L104 296H84L80 232L76 296H56Z" fill="#1d1d28" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/><path d="M80 232V206" stroke="#000" stroke-width="2"/>`+shoes;
+ else if(c.bt==1)b+=legs(240)+`<path d="M62 292H78V282H62Z M82 292H98V282H82Z" fill="#fff"/>`+shoes+`<path d="M58 202H102L114 248H46Z" fill="#e0306a" stroke="#1d1147" stroke-width="2.4" stroke-linejoin="round"/><path d="M70 206L64 246M80 206V248M90 206L96 246" stroke="#a01848" stroke-width="2"/>`;
+ else b+=legs(236)+shoes+`<path d="M58 202H102L108 240L84 244L80 226L76 244L52 240Z" fill="#4a7ad0" stroke="#1d1147" stroke-width="2.4" stroke-linejoin="round"/><path d="M80 226V206M60 236l8 4M100 236l-8 4" stroke="#2a4a90" stroke-width="2"/>`;
+ // gövde (üst)
+ const armSk=(side)=>{const x=side?112:48;return `<path d="M${x-6} 128Q${x-12} 170 ${x-8} 206L${x+8} 206Q${x+10} 170 ${x+6} 132Z" fill="${GSK}" stroke="${GSD}" stroke-width="2"/><circle cx="${x}" cy="210" r="9" fill="${GSK}" stroke="${GSD}" stroke-width="2"/>`};
+ b+=`<rect x="73" y="106" width="14" height="22" fill="${GSK}" stroke="${GSD}" stroke-width="2"/>`;
+ if(!c.coat)b+=armSk(0)+armSk(1);
+ if(c.tp==1){b+=`<path d="M62 168H98V204Q80 210 62 204Z" fill="${GSK}"/><circle cx="80" cy="190" r="2.2" fill="${GSD}"/><path d="M54 126Q80 118 106 126L108 148Q104 150 100 156L98 168H62L60 156Q56 150 52 148Z" fill="#ff4f9a" ${outl}/><path d="M54 126L44 150L56 154L62 134Z M106 126L116 150L104 154L98 134Z" fill="#ff4f9a" ${outl}/><path d="M74 124Q80 136 86 124" fill="none" stroke="#1d1147" stroke-width="2.4"/>`}
+ else if(c.tp==2){b+=`<path d="M52 126Q80 116 108 126L114 214Q80 222 46 214Z" fill="#8a5aff" ${outl}/><path d="M50 156H112M48 176H114M47 196H113" stroke="#ffd23f" stroke-width="5"/><path d="M52 130Q38 170 40 214L54 214Q60 170 58 136Z M108 130Q122 170 120 214L106 214Q100 170 102 136Z" fill="#8a5aff" ${outl}/><path d="M68 124Q80 140 92 124" fill="#6a3ad8" ${outl}/><path d="M74 134V150M86 134V150" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>`}
+ else{b+=`<path d="M54 126Q80 118 106 126L110 152Q104 152 102 158L100 206Q80 212 60 206L58 158Q56 152 50 152Z" fill="#fff" stroke="#b8c2d8" stroke-width="2.6" stroke-linejoin="round"/><path d="M54 126Q40 132 38 152L54 158L58 132Z M106 126Q120 132 122 152L106 158L102 132Z" fill="#fff" stroke="#b8c2d8" stroke-width="2.6" stroke-linejoin="round"/><path d="M68 122L80 138L92 122Z" fill="#eef3ff" stroke="#b8c2d8" stroke-width="2"/><path d="M80 138V190" stroke="#b8c2d8" stroke-width="2"/><circle cx="80" cy="150" r="2" fill="#b8c2d8"/><circle cx="80" cy="168" r="2" fill="#b8c2d8"/><text x="96" y="156" text-anchor="end" font-family="Segoe Script,Brush Script MT,Lucida Handwriting,cursive" font-size="13" font-style="italic" fill="#1d2f7a" transform="rotate(-8 90 154)">Gazi</text>`}
+ // önlük
+ if(c.coat)b+=`<path d="M56 128Q36 140 34 186L32 262L62 266L64 136Z" fill="#fff" stroke="#b8c2d8" stroke-width="2.6" stroke-linejoin="round"/><path d="M104 128Q124 140 126 186L128 262L98 266L96 136Z" fill="#fff" stroke="#b8c2d8" stroke-width="2.6" stroke-linejoin="round"/><path d="M62 124L70 146L56 134Z M98 124L90 146L104 134Z" fill="#f4f8ff" stroke="#b8c2d8" stroke-width="2"/><path d="M52 132Q36 150 36 204L48 208Q50 160 58 140Z M108 132Q124 150 124 204L112 208Q110 160 102 140Z" fill="#f4f8ff" stroke="#b8c2d8" stroke-width="2.2"/><circle cx="40" cy="214" r="9" fill="${GSK}" stroke="${GSD}" stroke-width="2"/><circle cx="120" cy="214" r="9" fill="${GSK}" stroke="${GSD}" stroke-width="2"/><rect x="40" y="224" width="20" height="22" rx="3" fill="none" stroke="#b8c2d8" stroke-width="2.2"/><rect x="100" y="224" width="20" height="22" rx="3" fill="none" stroke="#b8c2d8" stroke-width="2.2"/>`;
+ // yüz
+ let f=`<ellipse cx="42" cy="82" rx="5" ry="8" fill="${GSK}" stroke="${GSD}" stroke-width="2"/><ellipse cx="118" cy="82" rx="5" ry="8" fill="${GSK}" stroke="${GSD}" stroke-width="2"/><ellipse cx="80" cy="76" rx="38" ry="40" fill="${GSK}" stroke="${GSD}" stroke-width="2.4"/><ellipse cx="56" cy="92" rx="8" ry="5" fill="#ff9aa8" opacity=".55"/><ellipse cx="104" cy="92" rx="8" ry="5" fill="#ff9aa8" opacity=".55"/>`;
+ const bc=hc==='#f0c860'?'#a8803a':hc==='#ff7ab8'?'#c0407a':hc==='#4aa0ff'?'#2a60b0':hc==='#9a5ae0'?'#5a2aa0':hc;
+ f+=`<ellipse cx="64" cy="76" rx="8.4" ry="9.4" fill="#fff" stroke="#1d1147" stroke-width="1.8"/><ellipse cx="96" cy="76" rx="8.4" ry="9.4" fill="#fff" stroke="#1d1147" stroke-width="1.8"/><circle cx="65" cy="77" r="5.4" fill="${ec}"/><circle cx="97" cy="77" r="5.4" fill="${ec}"/><circle cx="65" cy="77" r="2.6" fill="#120a20"/><circle cx="97" cy="77" r="2.6" fill="#120a20"/><circle cx="67" cy="74.4" r="1.7" fill="#fff"/><circle cx="99" cy="74.4" r="1.7" fill="#fff"/><path d="M55 70Q64 63 73 70M87 70Q96 63 105 70" fill="none" stroke="#1d1147" stroke-width="2"/>`;
+ const BW=[`<path d="M53 61Q64 54 75 60M85 60Q96 54 107 61" stroke="${bc}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`,`<path d="M54 60L75 59M85 59L106 60" stroke="${bc}" stroke-width="3.6" stroke-linecap="round"/>`,`<path d="M52 62Q64 53 76 60M84 60Q96 53 108 62" stroke="${bc}" stroke-width="6.6" fill="none" stroke-linecap="round"/>`,`<path d="M52 62Q62 40 76 56M84 56Q98 40 108 62" stroke="${bc}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`,`<path d="M53 60Q64 54 75 60" stroke="${bc}" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M85 56Q96 36 108 50" stroke="${bc}" stroke-width="3.8" fill="none" stroke-linecap="round"/>`,`<path d="M53 54Q64 62 76 60M84 60Q96 62 107 54" stroke="${bc}" stroke-width="3.6" fill="none" stroke-linecap="round"/>`];f+=BW[c.bw%6];
+ const NS=[`<path d="M77 84Q80 90 83 84" stroke="#c0907a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`,`<path d="M80 80L76 90Q80 92 84 90Z" fill="#f0c4a8" stroke="#c0907a" stroke-width="2"/>`,`<ellipse cx="80" cy="88" rx="6" ry="5" fill="#f0c4a8" stroke="#c0907a" stroke-width="2"/>`,`<circle cx="80" cy="88" r="9.5" fill="#e0102a" stroke="#8a0a1a" stroke-width="2.4"/><circle cx="76.6" cy="84.6" r="3" fill="#fff" opacity=".7"/>`,`<ellipse cx="80" cy="90" rx="12" ry="8.6" fill="#ff9aa8" stroke="#c0506a" stroke-width="2.4"/><ellipse cx="75.4" cy="90" rx="2.4" ry="3.6" fill="#a02a4a"/><ellipse cx="84.6" cy="90" rx="2.4" ry="3.6" fill="#a02a4a"/>`,`<path d="M76 82L80 118L84 82Z" fill="#f0c4a8" stroke="#c0907a" stroke-width="2.2" stroke-linejoin="round"/><path d="M80 118l-2-4" stroke="#8a5a3a"/>`];f+=NS[c.ns%6];
+ const MS=[`<path d="M68 101Q80 110 92 101Q80 114 68 101Z" fill="${lc}" stroke="#7a2038" stroke-width="1.6"/>`,`<path d="M66 99Q80 118 94 99Z" fill="#8a2038" stroke="${lc}" stroke-width="3.4" stroke-linejoin="round"/><rect x="72" y="100" width="16" height="5" rx="2" fill="#fff"/>`,`<path d="M70 103H90" stroke="${lc}" stroke-width="5.4" stroke-linecap="round"/>`,`<path d="M60 98Q80 124 100 98Z" fill="#fff" stroke="${lc}" stroke-width="3.6" stroke-linejoin="round"/><path d="M70 100V110M80 100V114M90 100V110M62 104H98" stroke="#d0d0e0" stroke-width="1.6"/>`,`<path d="M66 100Q80 112 94 100" fill="none" stroke="${lc}" stroke-width="5" stroke-linecap="round"/><path d="M76 106Q80 128 84 106Z" fill="#ff7a9a" stroke="#c03a6a" stroke-width="2"/><path d="M80 108V118" stroke="#c03a6a" stroke-width="1.6"/>`,`<ellipse cx="80" cy="104" rx="9" ry="7" fill="${lc}" stroke="#7a2038" stroke-width="2"/><path d="M73 104H87" stroke="#7a2038" stroke-width="1.8"/><path d="M76 101q4-3 8 0" stroke="#fff" stroke-width="1.8" fill="none" opacity=".8"/>`,`<path d="M62 103q4-7 9 0q4 7 9 0q4-7 9 0q4 7 9 0" fill="none" stroke="${lc}" stroke-width="5" stroke-linecap="round"/>`];f+=MS[c.ms%7];
+ if(c.mk>=1)f+=`<path d="M54 76Q46 70 42 66M106 76Q114 70 118 66" stroke="#0a0614" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="64" cy="68" rx="11" ry="5.4" fill="#a050ff" opacity=".6"/><ellipse cx="96" cy="68" rx="11" ry="5.4" fill="#a050ff" opacity=".6"/><g fill="#fff"><circle cx="58" cy="66" r="1.6"/><circle cx="68" cy="64" r="1.4"/><circle cx="92" cy="64" r="1.4"/><circle cx="102" cy="66" r="1.6"/></g>`;
+ if(c.mk==2)f+=`<ellipse cx="56" cy="92" rx="11" ry="7" fill="#ff3a6a" opacity=".6"/><ellipse cx="104" cy="92" rx="11" ry="7" fill="#ff3a6a" opacity=".6"/><g stroke="#0a0614" stroke-width="2.2" stroke-linecap="round"><path d="M56 70l-4-4M60 66l-2-5M66 65l0-5M94 65l0-5M100 66l2-5M104 70l4-4"/></g><circle cx="108" cy="96" r="1.8" fill="#3a2418"/><g fill="#ffd23f"><circle cx="48" cy="92" r="1.5"/><circle cx="112" cy="90" r="1.5"/><circle cx="80" cy="60" r="1.4"/></g>`;
+ const A=c.acc;let ac='';
+ if(A&1)ac+=`<circle cx="88.6" cy="86" r="3.6" fill="none" stroke="#ffd23f" stroke-width="2.2"/>`;
+ if(A&2)ac+=`<circle cx="102" cy="58" r="2.6" fill="#c0c8d8" stroke="#6a7288" stroke-width="1.2"/><circle cx="106" cy="62" r="2.6" fill="#c0c8d8" stroke="#6a7288" stroke-width="1.2"/>`;
+ if(A&4)ac+=`<circle cx="86" cy="110" r="4" fill="none" stroke="#c0c8d8" stroke-width="2.4"/>`;
+ if(A&8)ac+=`<circle cx="40" cy="104" r="16" fill="none" stroke="#ffd23f" stroke-width="4.4"/><circle cx="120" cy="104" r="16" fill="none" stroke="#ffd23f" stroke-width="4.4"/>`;
+ if(A&16)ac+=`<g stroke="#ffd23f" stroke-width="2"><path d="M40 90V112M120 90V112"/></g><g fill="#ff4f9a" stroke="#a02a60" stroke-width="1.4"><path d="M40 112l-7 12h14z"/><path d="M120 112l-7 12h14z"/></g><g fill="#4cc9f0"><circle cx="40" cy="128" r="4"/><circle cx="120" cy="128" r="4"/></g>`;
+ if(A&32)ac+=`<path d="M48 70H112V84Q112 92 102 92H92Q84 92 82 84H78Q76 92 68 92H58Q48 92 48 84Z" fill="#0a0614" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/><path d="M54 74l10-2M96 74l8-2" stroke="#fff" stroke-width="2" opacity=".6"/><path d="M40 72H48M112 72H120" stroke="#0a0614" stroke-width="3"/>`;
+ if(A&64)ac+=`<path d="M70 118Q80 126 90 118" fill="none" stroke="#0a0614" stroke-width="5" stroke-linecap="round"/><path d="M80 124l2 4l4 .6l-3 3l.8 4l-3.8-2.4l-3.8 2.4l.8-4l-3-3l4-.6z" fill="#ffd23f"/>`;
+ let top='';if(A&128)top=`<path d="M50 40L56 14L68 30L80 8L92 30L104 14L110 40Z" fill="#ffd23f" stroke="#a37f00" stroke-width="2.6" stroke-linejoin="round"/><circle cx="80" cy="22" r="4" fill="#ff4f9a"/><circle cx="62" cy="30" r="3" fill="#4cc9f0"/><circle cx="98" cy="30" r="3" fill="#4cc9f0"/>`;
+ const sh='<ellipse cx="80" cy="312" rx="40" ry="6" fill="#000" opacity=".25"/>';
+ const inner=`${back}${b}${f}${front}${ac}${top}`;
+ if(hd)return `<svg viewBox="0 -14 160 160" xmlns="http://www.w3.org/2000/svg" class="gh" style="overflow:visible">${back}${f}${front}${ac}${top}</svg>`;
+ return `<svg viewBox="0 -24 160 350" xmlns="http://www.w3.org/2000/svg" class="gs ${o.cls||''}" style="overflow:visible">${sh}${inner}</svg>`}
+
+// <PHONE-BEGIN>
+const SCOLD=['ŞAKA MI YAPIYORSUN EVLADIM, BU HALİN NE?? GİT ÇABUK ÖĞRENCİ GİBİ GÖRÜN!','HÂLÂ AYNI HAL! BEN SANA ÖĞRENCİ GİBİ GÖRÜN DEDİM!!','SABRIMI TAŞIRMA EVLADIM! BU NE BÖYLE, SİRK Mİ BURASI?!','SON UYARI!!! BİR DAHA BÖYLE GELİRSEN BEN KARIŞIRIM!!!'];
+const DTABS=[['💇','Saç'],['👁️','Göz'],['💋','Dudak'],['🤨','Kaş'],['👃','Burun'],['💍','Aksesuar'],['👚','Kıyafet'],['💄','Makyaj']];
+function vpPhoneOpen(){try{window.ac&&ac()}catch(e){}if(window.show)show('ovVPh');PH={code0:(location.hash.match(/k=(\d{4})/)||[])[1]||'',joined:false,nick:'',dead:false,deadSet:[],st:null,act:null,pick:null,role:null,showCard:false,end:null,cfg:gCfg0(),fails:0,tab:0,rdy:false,mode:'design'};vpPhRender()}
+function vpPhClose(){if(PH&&PH.named){try{PH.named.leave()}catch(e){}}clearInterval(PH&&PH.tk);PH=null;if(window.show)show('ovGate');else location.reload()}
+async function vpPhJoin(){const nick=($('vpNick').value.trim()||'').slice(0,14),code=$('vpCodeIn').value.trim();if(!nick||code.length!==4){$('vpErr').textContent='Takma adını ve 4 haneli kodu yaz!';return}
+ try{if(window.claude&&claude.use){const room=await claude.use('room');if(!room){$('vpErr').innerHTML=(vpWhy()==='noclaude'?'Bu sayfa claude.ai dışında açılmış.':'Bu cihazda claude.ai girişi yok ya da halka açık linkle girilmiş.')+'<br>claude.ai\'a giriş yapıp şu linki doğrudan aç:<br><b style="word-break:break-all">'+VLINK+'</b>';return}PH.named=await room.join('v'+code)}
+  else{$('vpErr').textContent='Bağlanıyor…';PH.named=await pnJoin(code)}}
+ catch(e){$('vpErr').textContent=({tahta_bulunamadi:'Tahta bulunamadı. Kodu kontrol et; tahtada Dişli Salon açık mı?',peerjs_yuklenemedi:'Bağlantı kütüphanesi yüklenemedi. İnternetini kontrol et.'})[e&&e.code]||('Bağlanılamadı: '+((e&&e.code)||e));return}
+ const n=PH.named;PH.nick=nick;PH.joined=true;PH.rdy=false;PH.peer=(n.peers().find(p=>p.isMe&&p.sameTab)||{}).peer;
+ await n.presence({t:'p',nick,rdy:0,ask:Date.now(),av:gEnc(PH.cfg)});
+ n.on('st',m=>{PH.st=m.data;vpPhRender()});
+ n.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.pid=d.pid;PH.mates=d.m||[];vpPhRender()}});
+ n.on('rev',m=>{if(m.data&&m.data.r===PH.role){PH.showCard=true;vpPhRender()}});
+ n.on('act',m=>{const d=m.data;if(!d)return;if(d.k==='X'){if(PH.act&&PH.act.sid===d.sid)PH.act=null;vpPhRender();return}if(!PH.act||PH.act.sid!==d.sid)PH.pick=null;PH.act={...d,end:Date.now()+d.ms};vpPhRender()});
+ n.on('dead',m=>{PH.dead=PH.pid!==undefined&&(m.data.d||[]).includes(PH.pid);vpPhRender()});
+ n.on('end',m=>{PH.end=m.data;vpPhRender()});
+ PH.tk=setInterval(()=>{if(!PH)return;if(!PH.role&&PH.st&&PH.st.ph&&PH.st.ph!=='lobby')n.presence({ask:Date.now()});const e=$('vpPhTm');if(e&&PH.act){const l=Math.max(0,PH.act.end-Date.now());e.textContent=Math.ceil(l/1000);const b=$('vpPhBar');if(b)b.style.width=Math.min(100,l/Math.max(1,PH.act.ms0||PH.act.ms||1)*100)+'%'}},400);
+ vpPhRender()}
+function vpDesignUI(){const c=PH.cfg,t=PH.tab;
+ const sw=(arr,key)=>`<div class="dsSw">${arr.map((x,i)=>`<button class="sw${c[key]==i?' sel':''}" data-k="${key}" data-v="${i}" style="background:${x[1]}" title="${x[0]}"></button>`).join('')}</div>`;
+ const op=(arr,key)=>`<div class="dsOp">${arr.map((x,i)=>`<button class="opb${c[key]==i?' sel':''}" data-k="${key}" data-v="${i}">${x}</button>`).join('')}</div>`;
+ const tg=(arr,bit)=>`<div class="dsOp">${arr.map((x,i)=>`<button class="opb tgl${c.acc&(1<<i)?' sel':''}" data-bit="${i}">${x}</button>`).join('')}</div>`;
+ const P=[`<h4>Saç şekli</h4>${op(GHS,'hs')}<h4>Saç rengi</h4>${sw(GHC,'hc')}`,`<h4>Göz rengi</h4>${sw(GEC,'ey')}`,`<h4>Dudak rengi</h4>${sw(GLC,'lc')}<h4>Ağız şekli</h4>${op(GMS,'ms')}`,`<h4>Kaş şekli</h4>${op(GBS,'bw')}`,`<h4>Burun şekli</h4>${op(GNS,'ns')}`,`<h4>Aksesuarlar</h4>${tg(GAC)}`,`<h4>Üst</h4>${op(GTP,'tp')}<h4>Alt</h4>${op(GBT,'bt')}<h4>Önlük</h4><div class="dsOp"><button class="opb tgl${c.coat?' sel':''}" id="dsCoat">${c.coat?'🥼 Önlük giyili':'Önlük çıkarıldı'}</button></div>`,`<h4>Makyaj</h4>${op(GMK,'mk')}`];
+ return `<div class="phCard des"><div class="dsPrev" id="dsPrev">${girlSVG(c)}</div><div class="dsTabs">${DTABS.map((x,i)=>`<button class="dt${t==i?' sel':''}" data-t="${i}"><span>${x[0]}</span>${x[1]}</button>`).join('')}</div><div class="dsBody">${P[t]}</div><button class="btn yes" id="vpRdy">✅ HAZIRIM!</button></div>`}
+function vpDesignBind(){const upd=()=>{PH.named.presence({av:gEnc(PH.cfg)});vpPhRender()};
+ document.querySelectorAll('.dt').forEach(b=>b.onclick=()=>{PH.tab=+b.dataset.t;vpPhRender()});
+ document.querySelectorAll('.sw,.opb[data-k]').forEach(b=>b.onclick=()=>{PH.cfg[b.dataset.k]=+b.dataset.v;upd()});
+ document.querySelectorAll('.opb[data-bit]').forEach(b=>b.onclick=()=>{PH.cfg.acc^=1<<(+b.dataset.bit);upd()});
+ const cb=$('dsCoat');if(cb)cb.onclick=()=>{PH.cfg.coat=PH.cfg.coat?0:1;upd()};
+ $('vpRdy').onclick=vpTryReady}
+function vpTryReady(){const v=gViol(PH.cfg);if(!v.length){PH.rdy=true;PH.named.presence({rdy:1,av:gEnc(PH.cfg)});vpPhRender();return}
+ PH.fails++;PH.named.presence({av:gEnc(PH.cfg)});
+ if(PH.fails>4){PH.mode='fix';PH.cfg.acc=0;PH.cfg.coat=1;PH.cfg.tp=0;PH.cfg.bt=0;PH.cfg.mk=0;vpPhRender();setTimeout(()=>{if(!PH)return;PH.mode='design';PH.rdy=true;PH.named.presence({rdy:1,av:gEnc(PH.cfg)});vpPhRender()},4800);return}
+ PH.mode='scold';vpPhRender();try{navigator.vibrate&&navigator.vibrate(PH.fails*120)}catch(e){}}
+function vpPhRender(){const c=$('vpPh');if(!c||!PH)return;
+ if(!PH.joined){c.innerHTML=`<div class="phCard"><h2>🦇 Dişli Salon</h2><p>Tahtada (Dişli Salon ekranında) görünen 4 haneli kodu ve takma adını yaz. <small class="muted">Tahtada kod yoksa tahta tarafı açılmamış demektir.</small></p><input id="vpNick" placeholder="Takma adın" maxlength="14" autocomplete="off"><input id="vpCodeIn" inputmode="numeric" placeholder="4 haneli kod" maxlength="4" value="${PH.code0||''}"><button class="btn yes" id="vpJoin">🔌 Katıl</button><div id="vpErr" class="phErr"></div><button class="btn no" id="vpPhBack">⬅ Geri</button></div>`;$('vpJoin').onclick=vpPhJoin;$('vpPhBack').onclick=vpPhClose;return}
+ const st=(PH.st&&PH.st.ph)||'lobby';
+ if(PH.end){const e=PH.end,my=PH.role,won=(e.win==='V')===(my==='V');c.innerHTML=`<div class="phCard"><h2>${e.win==='V'?'🦇 Vampirler kazandı!':'🎉 Müşteriler kazandı!'}</h2><p>${my?(won?'Senin takımın kazandı! 🏆':'Bu sefer olmadı… 😅'):''}</p><div class="phRoles">${e.roles.map(r=>`<div style="--c:${VR[r[1]].c}">${VR[r[1]].e} <b>${vpEsc(r[0])}</b> <small>${VR[r[1]].n}${r[2]?'':' 💀'}</small></div>`).join('')}</div></div>`;return}
+ if(st==='lobby'&&!PH.role){
+  if(PH.mode==='scold'){const k=Math.min(PH.fails,4),L=[0,3,5,7,9][k];c.innerHTML=`<div class="phCard scold s${k}" style="--sh:${k*2}px"><div class="scG">${gizem(L,{ag:1})}</div><div class="scT" style="font-size:${15+k*2}px">${SCOLD[k-1]}</div><div class="scN">Uyarı ${k}/4</div><button class="btn no" id="scOk">😅 Tamam, düzeltiyorum…</button></div>`;$('scOk').onclick=()=>{PH.mode='design';vpPhRender()};return}
+  if(PH.mode==='fix'){c.innerHTML=`<div class="phCard fix"><div class="scG">${gizem(1,{lf:1})}</div><div class="scT">TAMAM, ÇOK ÇEKİŞTİK! BEN HALLEDİYORUM EVLADIM!</div><div class="dsPrev fixPrev">${girlSVG(PH.cfg)}<i class="spk">✨</i></div><div class="scN">Gizem Hoca seni öğrenci yaptı 🪄</div></div>`;return}
+  if(!PH.rdy){c.innerHTML=vpDesignUI();vpDesignBind();return}
+  c.innerHTML=`<div class="phCard"><h2>Hazırsın! 🎉</h2><div class="dsPrev small">${girlSVG(PH.cfg)}</div><div class="phNick">${vpEsc(PH.nick)}</div><p class="muted">Herkes hazır olunca oyun başlar</p><button class="btn no" id="vpUnr">↩ Tasarımı değiştir</button></div>`;$('vpUnr').onclick=()=>{PH.rdy=false;PH.named.presence({rdy:0});vpPhRender()};return}
+ if(PH.dead){c.innerHTML=`<div class="phCard dead"><h2>💀 Öldün</h2><p>Artık izleyicisin. Tahtaya bak ve sessiz kal!</p></div>`;return}
+ const a=PH.act&&PH.act.end>Date.now()-400?PH.act:null,me=PH.pid;
+ if(a&&a.w&&a.w.includes(me)&&a.k!=='X'&&a.k!=='F'){const T={V:['🧛 Kimi ısıracaksın?','Ortak seçim: oylar sayılır'],D:['🩺 Kimi koruyacaksın?','Bir kişiye bakım yap (kendin de olur)'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Şüphelendiğin kişiye oy ver']}[a.k]||['Seç',''];
+  const mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';
+  c.innerHTML=`<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList">${(a.al||[]).filter(x=>x[0]!==me||a.k==='D').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}">${vpEsc(x[1])}</button>`).join('')}${a.k==='H'||a.k==='T'?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':'🤷 Pas geç'}</button>`:''}</div></div>`;
+  PH.act.ms0=PH.act.ms0||a.ms;document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;PH.pick=p;PH.named.presence({a:[a.sid,p]});vpPhRender()});return}
+ if(st==='night'||(a&&a.k==='F')){const mine=PH.role&&PH.showCard?`<small>Rolün: ${VR[PH.role].e} ${VR[PH.role].n}</small>`:'';c.innerHTML=`<div class="phCard sleep"><h2>😴 Gözlerini kapat</h2><p>Gece oldu. Tahtadaki anonsları dinle, sıran gelirse telefonun uyanır.</p>${mine}</div>`;return}
+ if(st==='rev'||!PH.showCard&&!PH.role){c.innerHTML=`<div class="phCard"><h2>👀 Tahtaya bak!</h2><p>Roller dağıtılıyor… Sıran gelince telefonun söyleyecek.</p></div>`;return}
+ const R=VR[PH.role]||VR.C,mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';
+ c.innerHTML=`<div class="phCard role" style="--c:${R.c}"><div class="phRole">${R.e}</div><h2>${R.n}</h2>${mates}<p>${{V:'Geceleri birini ısır, gündüz masum görün!',D:'Geceleri birini koru. Kimseye söyleme!',H:'Ölürsen makasını birine fırlatıp onu da götürebilirsin.',C:'Vampiri bul ve oylamada ele!'}[PH.role]||''}</p>${st==='day'||st==='vote'?'<small>Tartış ve oy ver!</small>':''}</div>`}
+
+vpPhoneOpen();
+</script></body></html>
