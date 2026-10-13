@@ -79,24 +79,35 @@ ${m}
 ${L>=7&&!bu?'<path d="M106 52l6-2l-2 7l7-1l-5 8" stroke="#d01010" stroke-width="2.4" fill="none" stroke-linecap="round"/>':''}
 </g>${steam}${fire}${extra}${o.pt&&!o.hd?armSVG(f):''}${dv?'<path d="M62 40Q38 2 80 16Q64 24 72 42Z" fill="#c0392b" stroke="#600" stroke-width="2"/><path d="M138 40Q162 2 120 16Q136 24 128 42Z" fill="#c0392b" stroke="#600" stroke-width="2"/>':''}${o.hd?'':dv?fframe():'<circle cx="100" cy="100" r="98" fill="none" stroke="#1d1147" stroke-width="5"/>'}</svg>`;if(o.hd)return _o.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'').replace(/<defs>[\s\S]*?<\/defs>/,'');return _o}
 
-// ===== Hesapsız canlı bağlantı (PeerJS / WebRTC) =====
-const PNP='dsl-gh-';
-function pnLoad(){return new Promise((res,rej)=>{if(window.Peer)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>res();s.onerror=()=>rej({code:'peerjs_yuklenemedi'});document.head.appendChild(s)})}
-const PNCFG={config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},{urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},{urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]},debug:0};
-// telefon tarafı
-async function pnJoin(code){await pnLoad();return new Promise((resolve,reject)=>{const peer=new Peer(undefined,PNCFG);const ev={},mine={};let conn=null,opened=false,left=false;
- const net={mode:'peer',peer,
-  presence:async p=>{Object.assign(mine,p);try{if(conn&&conn.open)conn.send({t:'p',p})}catch(e){}},
-  peers:()=>[{peer:peer.id,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:mine,updatedAt:Date.now()}],
-  onPeers:f=>()=>{},
-  on:(t,f)=>{(ev[t]=ev[t]||[]).push(f);return()=>{}},
-  emit:async()=>{},
-  leave:async()=>{left=true;try{peer.destroy()}catch(e){}}};
- const link=()=>{conn=peer.connect(PNP+code,{reliable:true});const to=setTimeout(()=>{if(!opened){reject({code:'tahta_bulunamadi'})}},12000);
-  conn.on('open',()=>{clearTimeout(to);const first=!opened;opened=true;conn.send({t:'p',p:{...mine}});if(first)resolve(net)});
-  conn.on('data',d=>{if(d&&d.t==='e')(ev[d.topic]||[]).forEach(f=>f({topic:d.topic,data:d.data}))});
-  const re=()=>{if(left)return;if(!opened){reject({code:'tahta_bulunamadi'});return}setTimeout(()=>{if(!left)link()},2000)};conn.on('close',re);conn.on('error',re)};
- peer.on('open',link);peer.on('error',e=>{if(!opened)reject({code:e.type||'hata'})});peer.on('disconnected',()=>{try{peer.reconnect()}catch(e){}})})}
+// <NET-BEGIN>
+// ===== Hesapsız canlı bağlantı: herkese açık MQTT santrali (WebSocket) =====
+const MQNS='dsl-gh/v1/';
+const MQB=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081'];
+function mqLoad(){return new Promise((res,rej)=>{if(window.mqtt)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';s.onload=()=>window.mqtt?res():rej({code:'mqtt_yuklenemedi'});s.onerror=()=>rej({code:'mqtt_yuklenemedi'});document.head.appendChild(s)})}
+async function mqConnect(opts){await mqLoad();return new Promise((resolve,reject)=>{let i=0;const next=()=>{if(i>=MQB.length)return reject({code:'baglanti_kurulamadi'});const url=MQB[i++];let c,done=false;try{c=mqtt.connect(url,{...opts,connectTimeout:6000,reconnectPeriod:2500,clean:true,keepalive:25})}catch(e){return next()}
+  const to=setTimeout(()=>{if(!done){done=true;try{c.end(true)}catch(e){}next()}},7500);c.on('connect',()=>{if(!done){done=true;clearTimeout(to);resolve(c)}});c.on('error',()=>{})};next()})}
+const mqId=p=>p+Math.random().toString(36).slice(2,10);
+async function mqHost(code){const cid=mqId('b'),c=await mqConnect({clientId:cid}),ns=MQNS+code,down=ns+'/down';const pres={},ev={},pl=[],me={t:'b'};
+ const fire=()=>pl.forEach(f=>{try{f({})}catch(e){}});
+ const net={mode:'mqtt',onOpen:null,presence:async p=>{Object.assign(me,p)},
+  peers:()=>[{peer:cid,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:me,updatedAt:Date.now()},...Object.keys(pres).map(k=>({peer:k,isMe:false,sameTab:false,kind:'viewer',guest:false,presence:pres[k].presence,updatedAt:pres[k].updatedAt}))],
+  onPeers:f=>{pl.push(f);return()=>{}},on:(t,f)=>{(ev[t]=ev[t]||[]).push(f);return()=>{}},
+  emit:async(topic,data)=>{try{c.publish(down,JSON.stringify({t:'e',topic,data}))}catch(e){}},
+  leave:async()=>{clearInterval(net._t);try{c.end(true)}catch(e){}}};
+ c.subscribe(ns+'/up/+');
+ c.on('message',(tp,buf)=>{let m;try{m=JSON.parse(buf.toString())}catch(e){return}const k=tp.split('/').pop();if(m.t==='bye'){if(pres[k]){delete pres[k];fire()}return}
+  if(m.t==='p'){const isNew=!pres[k],o=pres[k]||{presence:{}};pres[k]={presence:{...o.presence,...m.p},updatedAt:Date.now()};if(isNew&&net.onOpen)net.onOpen({peer:k});fire()}});
+ net._t=setInterval(()=>{const now=Date.now();let ch=false;Object.keys(pres).forEach(k=>{if(now-pres[k].updatedAt>26000){delete pres[k];ch=true}});if(ch)fire()},5000);
+ return net}
+async function mqJoin(code){const cid=mqId('p'),ns=MQNS+code,up=ns+'/up/'+cid,down=ns+'/down';
+ const c=await mqConnect({clientId:cid,will:{topic:up,payload:JSON.stringify({t:'bye'}),qos:0}});const ev={},mine={};let heard=false,left=false;
+ const send=p=>{try{c.publish(up,JSON.stringify({t:'p',p}))}catch(e){}};
+ const net={mode:'mqtt',presence:async p=>{Object.assign(mine,p);send(p)},peers:()=>[{peer:cid,isMe:true,sameTab:true,kind:'viewer',guest:false,presence:mine,updatedAt:Date.now()}],onPeers:f=>()=>{},on:(t,f)=>{(ev[t]=ev[t]||[]).push(f);return()=>{}},emit:async()=>{},
+  leave:async()=>{left=true;try{c.publish(up,JSON.stringify({t:'bye'}));c.end(true)}catch(e){}}};
+ c.subscribe(down);
+ return new Promise((resolve,reject)=>{const to=setTimeout(()=>{if(!heard){left=true;try{c.end(true)}catch(e){}reject({code:'tahta_bulunamadi'})}},10000);
+  c.on('message',(tp,buf)=>{let m;try{m=JSON.parse(buf.toString())}catch(e){return}if(m.t==='e'){if(!heard){heard=true;clearTimeout(to);resolve(net)}(ev[m.topic]||[]).forEach(f=>f({topic:m.topic,data:m.data}))}});
+  const tick=()=>{if(left)return;send({...mine,hi:Date.now()});setTimeout(tick,heard?6000:2000)};tick()})}
 
 // <AVATAR-BEGIN>
 const GSK='#f6d3b8',GSD='#e0ae90';
@@ -165,8 +176,8 @@ function vpPhoneOpen(){try{window.ac&&ac()}catch(e){}if(window.show)show('ovVPh'
 function vpPhClose(){if(PH&&PH.named){try{PH.named.leave()}catch(e){}}clearInterval(PH&&PH.tk);PH=null;if(window.show)show('ovGate');else location.reload()}
 async function vpPhJoin(){const nick=($('vpNick').value.trim()||'').slice(0,14),code=$('vpCodeIn').value.trim();if(!nick||code.length!==4){$('vpErr').textContent='Takma adını ve 4 haneli kodu yaz!';return}
  try{if(window.claude&&claude.use){const room=await claude.use('room');if(!room){$('vpErr').innerHTML=(vpWhy()==='noclaude'?'Bu sayfa claude.ai dışında açılmış.':'Bu cihazda claude.ai girişi yok ya da halka açık linkle girilmiş.')+'<br>claude.ai\'a giriş yapıp şu linki doğrudan aç:<br><b style="word-break:break-all">'+VLINK+'</b>';return}PH.named=await room.join('v'+code)}
-  else{$('vpErr').textContent='Bağlanıyor…';PH.named=await pnJoin(code)}}
- catch(e){$('vpErr').textContent=({tahta_bulunamadi:'Tahta bulunamadı. Kodu kontrol et; tahtada Dişli Salon açık mı?',peerjs_yuklenemedi:'Bağlantı kütüphanesi yüklenemedi. İnternetini kontrol et.'})[e&&e.code]||('Bağlanılamadı: '+((e&&e.code)||e));return}
+  else{$('vpErr').textContent='Bağlanıyor…';PH.named=await mqJoin(code)}}
+ catch(e){$('vpErr').textContent=({tahta_bulunamadi:'Tahta bulunamadı. Kodu kontrol et; tahtada Dişli Salon açık mı?',mqtt_yuklenemedi:'Bağlantı kütüphanesi yüklenemedi. İnternetini kontrol et.',baglanti_kurulamadi:'Canlı bağlantı santraline ulaşılamadı. İnternet ya da okul ağı engelliyor olabilir.'})[e&&e.code]||('Bağlanılamadı: '+((e&&e.code)||e));return}
  const n=PH.named;PH.nick=nick;PH.joined=true;PH.rdy=false;PH.peer=(n.peers().find(p=>p.isMe&&p.sameTab)||{}).peer;
  await n.presence({t:'p',nick,rdy:0,ask:Date.now(),av:gEnc(PH.cfg)});
  n.on('st',m=>{PH.st=m.data;vpPhRender()});
