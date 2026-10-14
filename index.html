@@ -82,7 +82,7 @@ ${L>=7&&!bu?'<path d="M106 52l6-2l-2 7l7-1l-5 8" stroke="#d01010" stroke-width="
 // <NET-BEGIN>
 // ===== Hesapsız canlı bağlantı: herkese açık MQTT santrali (WebSocket) =====
 const MQNS='dsl-gh/v1/';
-const MQB=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081'];
+const MQB=['wss://mqtt.eclipseprojects.io:443/mqtt','wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081'];
 function mqLoad(){return new Promise((res,rej)=>{if(window.mqtt)return res();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js';s.onload=()=>window.mqtt?res():rej({code:'mqtt_yuklenemedi'});s.onerror=()=>rej({code:'mqtt_yuklenemedi'});document.head.appendChild(s)})}
 async function mqConnect(opts){await mqLoad();return new Promise((resolve,reject)=>{let i=0;const next=()=>{if(i>=MQB.length)return reject({code:'baglanti_kurulamadi'});const url=MQB[i++];let c,done=false;try{c=mqtt.connect(url,{...opts,connectTimeout:6000,reconnectPeriod:2500,clean:true,keepalive:25})}catch(e){return next()}
   const to=setTimeout(()=>{if(!done){done=true;try{c.end(true)}catch(e){}next()}},7500);c.on('connect',()=>{if(!done){done=true;clearTimeout(to);resolve(c)}});c.on('error',()=>{})};next()})}
