@@ -333,7 +333,7 @@ function vpCardHTML(){const r=PH.role,R=VR[r]||VR.C,rl=RRULES[r]||RRULES.C,mates
  return `<div class="rcWrap"><div class="rc${PH.flip?' flip':''}" id="rc" style="--c:${R.c}"><div class="rcF rcBack"><div class="rcCrest">🦇</div><b>DİŞLİ SALON</b><span>Rol kartın kapalı.<br>Dokun ve çevir!</span></div><div class="rcF rcFront"><div class="rcIc">${R.e}</div><h3>${rl[0]}</h3>${mates}${lvH}<p>${rl[1]}</p><p class="rcRule">${rl[2]}</p>${lvR}<div class="rcBarW"><div id="rcBar" class="rcBar"></div></div></div></div></div>`}
 function vpCardBind(){const rc=$('rc');if(!rc)return;rc.onclick=()=>{if(PH.flip){PH.flip=false;clearTimeout(PH.flipT);rc.classList.remove('flip');return}PH.flip=true;PH.flipEnd=Date.now()+10000;rc.classList.add('flip');clearTimeout(PH.flipT);PH.flipT=setTimeout(()=>{PH.flip=false;const e=$('rc');if(e)e.classList.remove('flip')},10000)}}
 function vpFrameHTML(look){const c=PH.cfg;return `<div class="phFrame${PH.dead?' dd':''}"><div class="phFr">${girlSVG(c,{head:true,role:look})}</div><span>${vpEsc(PH.nick)}</span></div>`}
-function vpActHTML(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Oyunu değiştirebilir veya geri çekebilirsin.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar.'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Oyunu değiştirebilirsin.']}[a.k]||['Seç',''];
+function vpActHTML(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Oyunu değiştirebilir veya geri çekebilirsin.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar. (Süre biterse seçtiğin iki kişi yine aşık olur.)'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Oyunu değiştirebilirsin.']}[a.k]||['Seç',''];
  const mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';
  const vk=a.k==='V';const chat=vk?`<div class="vkChat"><div class="vkMsgs" id="vkMsgs"></div><div class="vkIn"><input id="vkTxt" maxlength="120" placeholder="Vampirlere yaz…" autocomplete="off"><button class="btn" id="vkSend">Gönder</button></div></div>`:'';
  return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${vpEsc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${chat}</div>`}
@@ -619,6 +619,112 @@ HINTS.P=['Aynı kişiyi iki gece üst üste engelleyemezsin; planını buna gör
 HINTS.B=['Sabote ettiklerini ne kadar çok biriktirirsen patlama o kadar çok kişiyi götürür.','Tarafsızsın: kimseyle ittifak kurmak zorunda değilsin, ama oy vererek ortamı karıştırabilirsin.'];
 // ----- komik soru havuzu (rolü olmayanın ekranı da dolu olsun, kimin ne olduğu anlaşılmasın) -----
 const DQ=[['En sevdiğin hoca?','Gizem Hoca','Gizem Hoca Değil (Yürek Yedim)'],['Sabah alarmı kaçıncıda kalkıyorsun?','İlkinde (yalan)','Beşinde, yine geç'],['Kaşını alırken ağlıyor musun?','Hayır, taş gibiyim','Ağlıyorum 😭'],['Okulda en çok ne yapıyorsun?','Ders dinlerim','Saç modeli kaydırırım'],['Fondöten tonun?','Tam tutturdum','Yüzüm boyunla uyuşmuyor'],['Sınavdan önce ne yaptın?','Çalıştım','Dua ettim'],['Ağda acıtır mı?','Hiç acıtmaz','Annemi çağırttı'],['Kantinde ne alıyorsun?','Tost','Tost (yine)'],['Telefonun şarjı?','%100','%3 ve umut'],['Gizem Hoca\'nın bakışı?','Sevgi dolu','Beni gördü kaçıyorum'],['Rujun kalıcılığı?','Yemekte bile durur','Su içince gider'],['En iyi saç rengi?','Kızıl','Sarı (ama sarıdan korkuyorum)'],['Ödevini yaptın mı?','Evet','Servisi kaçırdım'],['Manikür mü pedikür mü?','Manikür','Pedikür (ayaklarım hak etti)'],['Gece kaçta yatıyorsun?','Erken yatarım','Telefonun ışığıyla hayat'],['Kirpik maskarası?','Hacim','Panda gibi oldum'],['Hangi içecek?','Çay','Çay (ikinci bardak)'],['Okulda en çok kimden korkuyorsun?','Müdür','Gizem Hoca (şaka şaka)'],['Aynada kendine bakınca?','Harikayım','Bir saç daha beyazlamış'],['Cuma günü planın?','Gezmek','Uyumak'],['Tırnaklarını nasıl yaptırdın?','Uzun ve şık','Kısa ama kırılmadı'],['Hangi koku?','Vanilya','Vanilya (çünkü tek bu var)'],['Sınıfta oturduğun yer?','Önde','Arka sıra, hakkımı bilirim'],['Makas mı tarak mı?','Makas','Tarak (güvenli)'],['Güzellik uykusu kaç saat?','8 saat','Ders arası 10 dakika']];
+DQ.push(
+['Vampir olsan ilk kimi ısırırdın?','Tostçu abiyi','Kimseyi, vejetaryen vampirim'],
+['Saçın sabah nasıl uyanıyor?','Reklamdaki gibi','Elektrik çarpmış gibi'],
+['Ojen kurumadan ne yaparsın?','Sabırla beklerim','Hemen telefona dokunurum 💅💥'],
+['Kaş alırken ayna kaçıncı mesafede?','Normal mesafe','Burnum aynaya değiyor'],
+['Fön çekerken kolun ne durumda?','Sapasağlam','Spor salonu açtırdı'],
+['Selfie kaç denemede oluyor?','İlk denemede','47. denemede, ışık kötüydü'],
+['Arkadaşın yeni saçını sordu, ne dersin?','Çok yakışmış!','Uzar uzar, merak etme'],
+['Maskara sürerken ağzın?','Kapalı tabii','Açık, bilim bunu açıklayamıyor'],
+['Vampirler gündüz ne yapar?','Uyur','Güneş kremi stoklar'],
+['Yüz maskesi yaptın, kapı çaldı?','Sakin açarım','Kargocu korkudan kaçtı'],
+['Kuaförde "biraz alalım" dedin?','Biraz aldı','Kaküllü döndüm 😭'],
+['En sevdiğin teneffüs aktivitesi?','Dinlenmek','Kantine koşu yarışı'],
+['Sınavda yanındaki kopya verirse?','Asla bakmam','Zaten onun da cevabı yanlış'],
+['Annen odanı görünce ne der?','Ne kadar düzenli!','Burada ev mi var, enkaz mı?'],
+['Hangi süper güç?','Görünmezlik','Hiç bozulmayan makyaj'],
+['Hocaya "Hocam bir şey soracağım" dedin?','Dersle ilgili','Saat kaç?'],
+['Saç spreyi kullanınca?','Saçım sabitlendi','Sınıf boğuldu'],
+['Rimel mi far mı?','Rimel','İkisi de, tam panda'],
+['Vampir olsan aynada görünmezsin. Makyajı nasıl yaparsın?','Arkadaşım yapar','Tahminle, şans ver'],
+['Telefonunun galerisi?','Düzenli albümler','6000 tane aynı selfie'],
+['Okula geç kaldın, bahanen?','Servis geç geldi','Kedim çantama oturdu'],
+['Pazartesi sabahı moralin?','%100 enerji','Pil simgesi kırmızı'],
+['Makyaj fırçalarını en son ne zaman yıkadın?','Dün','Bunlar yıkanıyor mu?'],
+['Allık sürünce?','Doğal pembe','Domates oldum 🍅'],
+['Kırmızı ruj sürdün, sonra?','Çok şık','Dişime bulaştı'],
+['Bir vampir sana yaklaşsa?','Kaçarım','Cilt bakım önerisi isterim'],
+['Ders arasında 10 dakika?','Ders tekrarı','Mini uyku festivali'],
+['Kaşlar kardeş mi ikiz mi?','İkiz','Uzaktan akraba'],
+['Göz kalemi çekerken?','Tek seferde','Bir göz kedi, bir göz panda'],
+['Okulun en güzel yeri?','Kütüphane','Kantin, tartışmasız'],
+['Saç boyası kutunun üstündeki renk?','Aynısı çıktı','Havuç çıktı 🥕'],
+['Hangisi daha korkunç?','Vampir','Karne günü'],
+['Ödev teslim tarihi yarın?','Çoktan bitti','Bu gece efsane olacak'],
+['Ağda bandını nasıl çekersin?','Tek seferde, cesurca','Yavaş yavaş, ağlayarak'],
+['Topuz yaptın, sonuç?','Balerin gibi','Kafamda kuş yuvası'],
+['Bir müşteri "Kısa olsun ama uzun dursun" dedi?','Anladım','İstifa ettim'],
+['Oje rengi seçimi?','Tek renk','Her tırnak farklı, sanat bu'],
+['Sabah kahvaltısı?','Tam kahvaltı','Servis yolunda bir simit'],
+['Yatmadan önce cilt bakımı?','10 adım rutin','Yüzümü yıkasam ödül'],
+['Grup ödevinde sen?','Lider','"Ben slaytı renklendiririm"'],
+['Sınıfın en sessiz anı?','Sınav sırasında','Hoca "Kim yapacak?" deyince'],
+['Gizem Hoca sınıfa girince?','Hemen toparlanırım','Ruj cebime, ayna çantaya'],
+['Parfüm kaç fıs?','Bir fıs yeter','Koridor da kokmalı'],
+['Kirpik kıvırıcı?','Profesyonelim','Kirpiğimi kopardım 😬'],
+['Fondöten mi BB krem mi?','Fondöten','Güneş ne verdiyse'],
+['Doğum günü pastası?','Çikolatalı','Hangisi büyükse'],
+['Saç düzleştirici kaç derece?','Uygun ısı','Saçım tütüyor'],
+['Bir vampir ne içer?','Domates suyu','Vişne suyu, kesin'],
+['Yeni moda akım çıktı?','Hemen denerim','Annem görmesin'],
+['Ders kitabının durumu?','Yepyeni','Kenarları sanat galerisi'],
+['Sabah aynaya ilk bakışın?','Harika görünüyorum','Bu kim?'],
+['Rüyanda ne gördün?','Tatil','Sınava pijamayla girdim'],
+['Kuaför sana kaç kere "Su sıcak mı?" sordu?','Bir kere','Her 5 saniyede'],
+['En büyük korkun?','Örümcek','Yanlış kesilen kakül'],
+['Kantinde sıra?','Sabırla beklerim','Arkadaşın önüne kaynarım'],
+['Okulda telefon yasak, ne hissediyorsun?','Sorun yok','Elim titriyor'],
+['Takma kirpik taktın?','Doğal durdu','Gözümde iki örümcek'],
+['Kardeşin makyaj malzemeni kullandı?','Sorun değil','Savaş başladı'],
+['Gece yarısı acıktın?','Su içerim','Buzdolabı baskını'],
+['Tatilde ilk iş?','Gezi planı','14 saat uyku'],
+['Bir müşteri saçını beğenmedi?','Tekrar yaparım','"Uzar" derim gülümseyerek'],
+['Hangi meslek daha zor?','Kuaförlük','Vampir avcılığı'],
+['Ruj rengi seçerken?','Tenime uygun','En parlak olanı'],
+['Bu oyunda vampir kim sence?','Kesin yanımdaki','Gizem Hoca 👀'],
+['Okul fotoğrafında sen?','Mükemmel poz','Gözüm kapalı çıktım'],
+['Saç kurutma makinesi bozuldu?','Doğal kurusun','Kafamı fırına sokarım (şaka)'],
+['Kalem kutunda kaç kalem var?','Gerekli olanlar','42 kalem, hiçbiri yazmıyor'],
+['Yüzüne sivilce çıktı?','Kapatıcı yeter','Adını koydum, artık arkadaşız'],
+['Uzun saç mı kısa saç mı?','Uzun','Kısa, fön derdi yok'],
+['Pijamayla dışarı çıkar mısın?','Asla','Markete kadar sayılmaz'],
+['Ödevini köpeğin yedi desen?','Hoca inanır','Benim köpeğim yok ki'],
+['En sevdiğin ders?','Meslek dersi','Beden eğitimi + teneffüs'],
+['Bir vampir salonuna randevu alsa?','Gece seansı açarım','Sarımsaklı maske öneririm'],
+['Ojeyi kazırken?','Asla kazımam','Stres atma yöntemim'],
+['Kahkahan nasıl?','Zarif','Sınıf yan sınıfa ses gidiyor'],
+['Sınavdan önceki gece?','Erken yattım','Konuları rüyamda çalıştım'],
+['Hangi emoji sen?','😎','😴'],
+['Gözlük mü lens mi?','Gözlük','Kör gibi gezerim'],
+['Çantanda ne var?','Kitap defter','Yarım paket bisküvi ve 3 ruj'],
+['Saçına ne yapılsın?','Hafif dalga','Gökkuşağı renk, hepsi'],
+['Pazar günü?','Ödev','Pijama maratonu'],
+['Aynı kıyafetle iki kişi geldi?','Tesadüf','Bu bir savaş ilanı'],
+['Pamuk şeker mi elma şekeri mi?','Pamuk şeker','Elma şekeri, dişlerimle'],
+['Okul servisinde?','Kitap okurum','Uyurum, başım cama'],
+['Manikür yaparken telefon çaldı?','Açmam','Burnumla açarım'],
+['Hangisi daha zor?','Kalın eyeliner','Pazartesi'],
+['Bir vampirle arkadaş olur musun?','Neden olmasın','Sadece gündüz görüşürüz'],
+['Sınıf grubunda sen?','Önemli duyurular','Sadece çıkartma atarım'],
+['Uyku mu yemek mi?','Uyku','Yemek, sonra uyku'],
+['Saç fırçası mı tarak mı?','Fırça','Parmaklarım yeter'],
+['Kantinden ne kadar harcadın?','Az','Harçlık bitti, ayın 3ü'],
+['En iyi koku?','Taze kurabiye','Yeni açılmış kozmetik'],
+['Bir hocanın sesini taklit edebilir misin?','Hayır asla','Evet ama burada değil 🤫'],
+['Ders bitince?','Toparlanırım','Zil çalmadan çantam sırtımda'],
+['Kaç saat ekran süren var?','2 saat','Bunu konuşmayalım'],
+['Kuaför koltuğunda?','Sessiz otururum','Bütün dertlerimi anlatırım'],
+['Sınıfın en komiği kim?','Ben','Yanımdaki (ben)'],
+['Gece hangi ses seni korkutur?','Kapı gıcırtısı','Annemin "Uyumadın mı?" sesi'],
+['Vampir dişi takar mısın?','Cadılar bayramında','Her gün, tarzım bu'],
+['Dişçiye gitmek mi, sınav mı?','Dişçi','Sınav, hiç değilse uyuşmuyorum'],
+['Hangi renk saç?','Siyah','Mor, kimse durduramaz'],
+['Sevdiğin şarkı çalınca?','Mırıldanırım','Konser veririm'],
+['En son ne zaman ağladın?','Hatırlamıyorum','Soğan doğrarken'],
+['Gizem Hoca seni yakalarsa?','Hiçbir şey yapmadım','"Hocam çok güzel olmuşsunuz"']
+);
 const esc=s=>vpEsc(s);
 // ----- yardımcılar -----
 function pst(){try{return JSON.parse(localStorage.getItem('dsl_sess')||'null')}catch(e){return null}}
@@ -630,10 +736,10 @@ const nm=k=>(VR[k]||{}).n||k;
 function banner(){return (PH.paused?'<div class="phPause">⏸ Oyun duraklatıldı</div>':'')+(PH.offline?'<div class="phOff">📡 Bağlantı koptu, yeniden bağlanıyor…</div>':'')}
 // ----- açılış -----
 vpPhoneOpen=function(){try{window.ac&&ac()}catch(e){}if(window.show)show('ovVPh');const ss=pst(),hc=(location.hash.match(/k=(\d{4})/)||[])[1]||'';
- PH={code0:hc,joined:false,nick:'',dead:false,st:null,act:null,pick:null,role:null,showCard:false,end:null,cfg:gCfg0(),fails:0,tab:0,rdy:false,mode:'design',vpicks:[],vchat:[],chn:0,flip:false,hand:false,floor:false,panels:{G:[],A:[],B:[],P:[]},lover:null,loverShow:0,noHints:false,hintAt:0,hintsUsed:[],betray:false,q:[],chat:{V:[],L:[]},cqn:0,cq:[],ch:'V',dqi:Math.floor(Math.random()*DQ.length),paused:false,pend:{},adm:null,admSt:null,aqn:0,aq:[],mm:0,vm:0};
+ PH={code0:hc,joined:false,nick:'',dead:false,st:null,act:null,pick:null,role:null,showCard:false,end:null,cfg:gCfg0(),fails:0,tab:0,rdy:false,mode:'design',vpicks:[],vchat:[],chn:0,flip:false,hand:false,floor:false,panels:{G:[],A:[],B:[],P:[]},lover:null,loverShow:0,noHints:false,hintAt:0,hintsUsed:[],betray:false,q:[],chat:{V:[],L:[]},cqn:0,cq:[],ch:'V',dqi:dqNext(),paused:false,pend:{},adm:null,admSt:null,aqn:0,aq:[],mm:0,vm:0};
  if(ss&&Date.now()-ss.t<4*3600e3&&(!hc||hc===ss.code)){PH.resume=ss;PH.code0=ss.code;PH.cfg=gDec(ss.av)}
  vpPhRender();if(PH.resume&&PH.code0){const r=PH.resume;setTimeout(()=>{if(PH&&!PH.joined){PH.autoNick=r.nick;PH.autoAdm=r.adm;PH.autoPin=r.pin;vpPhJoin(true)}},300)}};
-vpPhReset=function(){PH.end=null;PH.role=null;PH.revKey=null;PH.pid=undefined;PH.showCard=false;PH.dead=false;PH.act=null;PH.pick=null;PH.lover=null;PH.loverShow=0;PH.panels={G:[],A:[],B:[],P:[],Y:[]};PH.vpicks=[];PH.vchat=[];PH.flip=false;PH.hand=false;PH.floor=false;PH.betray=false;PH.q=[];PH.rdy=false;PH.mode='design';PH.fails=0;PH.hintsUsed=[];PH.chat={V:[],L:[]};PH.cq=[];PH.paused=false;PH.pend={};PH.mm=0;PH.vm=0;try{PH.named.presence({rdy:0,hand:0,a:null,cq:[],ask:Date.now()})}catch(e){}};
+vpPhReset=function(){PH.deadL=[];PH.end=null;PH.role=null;PH.revKey=null;PH.pid=undefined;PH.showCard=false;PH.dead=false;PH.act=null;PH.pick=null;PH.lover=null;PH.loverShow=0;PH.panels={G:[],A:[],B:[],P:[],Y:[]};PH.vpicks=[];PH.vchat=[];PH.flip=false;PH.hand=false;PH.floor=false;PH.betray=false;PH.q=[];PH.rdy=false;PH.mode='design';PH.fails=0;PH.hintsUsed=[];PH.chat={V:[],L:[]};PH.cq=[];PH.paused=false;PH.pend={};PH.mm=0;PH.vm=0;try{PH.named.presence({rdy:0,hand:0,a:null,cq:[],ask:Date.now()})}catch(e){}};
 vpPhClose=function(){if(PH&&PH.named){try{PH.named.leave()}catch(e){}}pclear();clearInterval(PH&&PH.tk);PH=null;if(window.show)show('ovGate');else location.reload()};
 // ----- bağlanma -----
 vpPhJoin=async function(auto){if(!PH||PH.joining||PH.joined)return;
@@ -655,7 +761,7 @@ vpPhJoin=async function(auto){if(!PH||PH.joining||PH.joined)return;
  net.on('st',m=>{const pph=PH.st&&PH.st.ph,phn=PH.st&&PH.st.hn;PH.st=m.data;let ch=!pph||pph!==m.data.ph||phn!==m.data.hn;if(m.data&&m.data.ph==='lobby'&&(PH.end||PH.role)){vpPhReset();ch=true}if(m.data&&m.data.ph!==pph)vpHintMaybe();if(m.data&&m.data.ph!=='day'&&PH.hand){PH.hand=false;net.presence({hand:0})}if(ch)ph()});
  net.on('pause',m=>{PH.paused=!!(m.data&&m.data.on);ph()});
  net.on('floor',m=>{const me=m.data&&m.data.pid===PH.pid&&PH.pid!==undefined;PH.floor=!!me;if(me&&PH.hand){PH.hand=false;net.presence({hand:0})}ph()});
- net.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.pid=d.pid;PH.mates=d.m||[];PH.revKey=d.rk||null;if(d.lv)PH.lover=d.lv;PH.dead=false;ph()}});
+ net.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.pid=d.pid;PH.mates=d.m||[];PH.revKey=d.rk||null;if(d.lv)PH.lover=d.lv;PH.dead=!!d.dd||(PH.deadL||[]).includes(d.pid);ph()}});
  net.on('rev',m=>{if(m.data&&m.data.r===PH.role&&PH.role){PH.showCard=true;ph()}});
  net.on('act',m=>{const d=m.data;if(!d)return;if(d.k==='X'){if(PH.act&&PH.act.sid===d.sid)PH.act=null;ph();return}if(PH.act&&PH.act.sid===d.sid&&PH.act.k===d.k){PH.act.end=Date.now()+d.ms;PH.act.al=d.al;return}if(!PH.act||PH.act.sid!==d.sid){PH.pick=null;PH.vpicks=[];PH.vchat=[];PH.mm=0;PH.vm=0}PH.act={...d,end:Date.now()+d.ms,ms0:d.ms};ph()});
  net.on('vpk',m=>{if(PH.act&&m.data&&m.data.sid===PH.act.sid){PH.vpicks=m.data.picks||[];vpPhUpd()}});
@@ -663,7 +769,7 @@ vpPhJoin=async function(auto){if(!PH||PH.joining||PH.joined)return;
  net.on('pan',m=>{const d=m.data;if(d&&d.to===PH.peer){(PH.panels[d.k]=PH.panels[d.k]||[]).push({n:d.n,t:d.t});ph()}});
  net.on('inf',m=>{const d=m.data;if(d&&d.to===PH.peer){vpToast(d.t);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(e){}}});
  net.on('lvb',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.betray=!!d.on;ph()}});
- net.on('dead',m=>{PH.dead=PH.pid!==undefined&&(m.data.d||[]).includes(PH.pid);ph()});
+ net.on('dead',m=>{PH.deadL=(m.data&&m.data.d)||[];PH.dead=PH.pid!==undefined&&PH.deadL.includes(PH.pid);ph()});
  net.on('end',m=>{PH.end=m.data;ph()});
  net.on('pend',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.pend=d;ph()}});
  net.on('adm',m=>{const d=m.data;if(d&&d.to===PH.peer&&PH.adm){PH.admSt=d;PH.admDirty=1;admUpd()}});
@@ -688,23 +794,25 @@ function chBubble(x){const me=x.fp===PH.peer;return `<div class="amM${me?' me':'
 function chatChans(){const o=[];if(PH.role==='V')o.push('V');if(PH.lover)o.push('L');return o}
 function chatHTML(chs,full){chs=chs||chatChans();if(!chs.length)return '';if(!chs.includes(PH.ch))PH.ch=chs[0];
  const tabs=chs.length>1||full?`<div class="amTabs">${chs.map(c=>`<button class="amT${PH.ch===c?' sel':''}" data-c="${c}">${c==='V'?'🦇 Vampirler':'💘 Aşıklar'}</button>`).join('')}</div>`:`<div class="amHd">${PH.ch==='V'?'🦇 Vampir sohbeti':'💘 Aşıklar sohbeti'}</div>`;
- return `<div class="amC${full?' full':''}">${tabs}<div class="amMsgs" id="amMsgs">${chMsgsHTML()}</div><div class="amIn"><input id="amTxt" maxlength="140" placeholder="Mesaj yaz…" autocomplete="off"><button id="amSend">➤</button></div></div>`}
+ return `<div class="amC${full?' full':''}">${tabs}<div class="amMsgs" id="amMsgs">${chMsgsHTML()}</div><div class="amIn"><input id="amTxt" data-c="${PH.ch}" maxlength="140" placeholder="Mesaj yaz…" autocomplete="off"><button id="amSend">➤</button></div></div>`}
 function chMsgsHTML(){const L=(PH.chat[PH.ch]||[]).slice(),pend=PH.cq.filter(x=>x.c===PH.ch).map(x=>({fp:PH.peer,f:PH.nick,t:x.t,av:gEnc(PH.cfg),pending:1}));return (L.concat(pend)).map(x=>chBubble(x).replace('class="amM','class="amM'+(x.pending?' pnd':''))).join('')||'<div class="amEmpty">Henüz mesaj yok. Selam ver! 👋</div>'}
 function chatUpd(){const m=$('amMsgs');if(!m)return;const bot=m.scrollHeight-m.scrollTop-m.clientHeight<60;m.innerHTML=chMsgsHTML();if(bot||true)m.scrollTop=m.scrollHeight}
-function chatBind(){document.querySelectorAll('.amT').forEach(b=>b.onclick=()=>{PH.ch=b.dataset.c;if(PH.adm)admRender();else vpPhRender()});const sd=$('amSend'),tx=$('amTxt');if(!sd)return;const send=()=>{const t=tx.value.trim();if(!t)return;tx.value='';if(PH.adm){admCmd({c:'chat',ch:PH.ch,t})}else{PH.cqn++;PH.cq.push({n:PH.cqn,c:PH.ch,t:t.slice(0,140)});if(PH.cq.length>6)PH.cq.shift();PH.named.presence({cq:PH.cq.slice()});chatUpd()}};sd.onclick=send;tx.onkeydown=e=>{if(e.key==='Enter')send()};const m=$('amMsgs');if(m)m.scrollTop=m.scrollHeight}
+function chatBind(){document.querySelectorAll('.amT').forEach(b=>b.onclick=()=>{PH.ch=b.dataset.c;if(PH.adm)admRender();else vpPhRender()});const sd=$('amSend'),tx=$('amTxt');if(!sd)return;const send=()=>{const t=tx.value.trim();if(!t)return;tx.value='';if(PH.drf)PH.drf[tx.dataset.c||PH.ch]='';if(PH.adm){admCmd({c:'chat',ch:PH.ch,t})}else{PH.cqn++;PH.cq.push({n:PH.cqn,c:PH.ch,t:t.slice(0,140)});if(PH.cq.length>6)PH.cq.shift();PH.named.presence({cq:PH.cq.slice()});chatUpd()}};sd.onclick=send;tx.onkeydown=e=>{if(e.key==='Enter')send()};tx.oninput=()=>{PH.drf=PH.drf||{};PH.drf[tx.dataset.c||PH.ch]=tx.value};{const v=PH.drf&&PH.drf[tx.dataset.c||PH.ch];if(v&&!tx.value)tx.value=v}const m=$('amMsgs');if(m)m.scrollTop=m.scrollHeight}
 // ----- komik sorular -----
+function dqNext(){let b=[];try{b=JSON.parse(localStorage.getItem('dsl_dqbag')||'[]')}catch(e){}b=b.filter(i=>i<DQ.length);if(!b.length){b=DQ.map((_,i)=>i);for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}}const n=b.shift();try{localStorage.setItem('dsl_dqbag',JSON.stringify(b))}catch(e){}return n}
+function decoySwap(){const cur=document.querySelector('.decoy');if(!cur)return;const t=document.createElement('div');t.innerHTML=decoyHTML();cur.replaceWith(t.firstElementChild);decoyBind()}
 function decoyHTML(){const q=DQ[PH.dqi%DQ.length];return `<div class="phCard sleep decoy"><h2>🌙 Gece sorusu</h2><p class="dqQ">${esc(q[0])}</p><div class="dqB"><button class="btn" data-a="0">${esc(q[1])}</button><button class="btn" data-a="1">${esc(q[2])}</button></div><small class="muted">Gece boyunca sorular gelmeye devam eder. Tahtadaki anonsları dinle.</small></div>`}
-function decoyBind(){document.querySelectorAll('.dqB .btn').forEach(b=>b.onclick=()=>{try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}const c=document.querySelector('.decoy');if(c){c.classList.add('ans');const p=c.querySelector('.dqQ');if(p)p.textContent='Kaydedildi 😄';c.querySelector('.dqB').style.visibility='hidden'}clearTimeout(PH.dqT);PH.dqT=setTimeout(()=>{if(!PH)return;PH.dqi=(PH.dqi+1+Math.floor(Math.random()*5))%DQ.length;const cur=document.querySelector('.decoy');if(cur)vpPhRender()},900)})}
+function decoyBind(){document.querySelectorAll('.dqB .btn').forEach(b=>b.onclick=()=>{try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}const c=document.querySelector('.decoy');if(c){c.classList.add('ans');const p=c.querySelector('.dqQ');if(p)p.textContent='Kaydedildi 😄';c.querySelector('.dqB').style.visibility='hidden'}clearTimeout(PH.dqT);PH.dqT=setTimeout(()=>{if(!PH)return;PH.dqi=dqNext();decoySwap()},900)})}
 // ----- eylem ekranı -----
-vpActHTML=function(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Süre bitince oy kullanmayanların hakkı yanar.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar.'],Y:['💄 Kimi izleyeceksin?','Seçtiğin kişinin gece <b>nereye gittiğini</b> öğrenirsin ama ne yaptığını bilemezsin. Gitmek suç değildir!'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Süre bitince oy kullanmayanların hakkı yanar.'],P:['👮 Kimin gücünü engelleyeceksin?','Seçtiğin kişi bu gece rolünü kullanamaz. Dün engellediğin kişiyi seçemezsin.'],B:['💅 Kimin salonunu sabote edeceksin?','Seçtiğinin kozmetik ürünlerini sabote edersin. İstersen sabote ettiklerini PATLAT!']}[a.k]||['Seç',''];
+vpActHTML=function(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Süre bitince oy kullanmayanların hakkı yanar.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar. (Süre biterse seçtiğin iki kişi yine aşık olur.)'],Y:['💄 Kimi izleyeceksin?','Seçtiğin kişinin gece <b>nereye gittiğini</b> öğrenirsin ama ne yaptığını bilemezsin. Gitmek suç değildir!'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Süre bitince oy kullanmayanların hakkı yanar.'],P:['👮 Kimin gücünü engelleyeceksin?','Seçtiğin kişi bu gece rolünü kullanamaz. Dün engellediğin kişiyi seçemezsin.'],B:['💅 Kimin salonunu sabote edeceksin?','Seçtiğinin kozmetik ürünlerini sabote edersin. İstersen sabote ettiklerini PATLAT!']}[a.k]||['Seç',''];
  const mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(esc).join(', ')}</b></div>`:'';
  const vk=a.k==='V',cv=vk&&a.cv,bb=a.k==='B';
  const extra=(cv?`<div class="vmSw"><button class="vmB${PH.vm?'':' sel'}" data-m="0">☠️ Isır (öldür)</button><button class="vmB${PH.vm?' sel':''}" data-m="1">🧛 Vampire çevir</button></div>`:'')+(bb&&a.pl&&a.pl.length?`<div class="phMate bmb">💣 Sabote ettiklerin: <b>${a.pl.map(esc).join(', ')}</b></div>`:'');
  const vcht=vk?chatHTML(['V'].concat(PH.lover?['L']:[]),false):'';
- return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}${extra}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${esc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'||bb?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':bb?'😴 Bu gece bir şey yapma':'🤷 Pas geç'}</button>`:''}${bb&&a.pl&&a.pl.length?`<button class="phPick boom${PH.pick===-3?' sel':''}" data-p="-3">💥 PATLAT! (${a.pl.length} kişi)</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${a.k==='T'||a.k==='R'?'':`<div class="phSent" id="phSent"></div>`}${vcht}</div>`};
+ return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}${extra}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${bb&&a.pl&&a.pl.length?`<button class="phPick boom${PH.pick===-3?' sel':''}" data-p="-3">💥 PATLAT! (${a.pl.length} kişi)</button>`:''}${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${esc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'||bb?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':bb?'😴 Bu gece bir şey yapma':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${a.k==='T'||a.k==='R'?'':`<div class="phSent" id="phSent"></div>`}${vcht}</div>`};
 vpActBind=function(a){const sent=t=>{const e=$('phSent');if(e)e.textContent=t};
  if(a.k==='Q'){PH.q=PH.q||[];const ok=$('vpQok');const sync=()=>{document.querySelectorAll('.phPick').forEach(x=>x.classList.toggle('sel',PH.q.includes(+x.dataset.p)));ok.disabled=PH.q.length!==2};
-  document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p,i=PH.q.indexOf(p);if(i>=0)PH.q.splice(i,1);else{if(PH.q.length>=2)PH.q.shift();PH.q.push(p)}sync()});sync();
+  document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p,i=PH.q.indexOf(p);if(i>=0)PH.q.splice(i,1);else{if(PH.q.length>=2)PH.q.shift();PH.q.push(p)}sync();try{PH.named.presence({qd:[a.sid,PH.q.slice()]})}catch(e){}});sync();
   ok.onclick=()=>{PH.named.presence({a:[a.sid,PH.q.slice()]});ok.textContent='💘 Oklar atıldı!';ok.disabled=true;PH.qSent=a.sid};if(PH.qSent===a.sid){ok.textContent='💘 Oklar atıldı!';ok.disabled=true}return}
  document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;PH.pick=p;PH.named.presence({a:[a.sid,p]});document.querySelectorAll('.phPick').forEach(x=>x.classList.toggle('sel',+x.dataset.p===p));sent('✔ Seçimin gönderildi');try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}});
  if(PH.pick!==null&&PH.pick!==undefined&&PH.pick!==-2&&a.k!=='T'&&a.k!=='R')sent('✔ Seçimin gönderildi');
@@ -734,7 +842,7 @@ vpPhRender=function(){const c=$('vpPh');if(!c||!PH)return;
  const a=PH.act&&PH.act.end>Date.now()-400?PH.act:null,me=PH.pid;
  if(a&&a.w&&a.w.includes(me)&&a.k!=='X'&&a.k!=='F'){PH.act.ms0=PH.act.ms0||a.ms;c.innerHTML=B+vpActHTML(a,me)+vpFrameHTML(PH.role);vpActBind(a);return}
  if(PH.dead){c.innerHTML=B+`<div class="phCard dead"><h2>💀 Öldün</h2><p>Artık izleyicisin. Tahtaya bak ve sessiz kal!</p></div>`+vpFrameHTML();return}
- if(st==='night'||(a&&a.k==='F')){const ch=chatChans();c.innerHTML=B+(ch.length?`<div class="phCard sleep"><h2>🌙 Gece</h2><p class="muted">Gece sohbeti açık. Sıran gelince ekranın uyanır.</p></div>`+chatHTML(ch,true):decoyHTML())+(PH.role?vpCardHTML():'')+vpPanelHTML()+vpFrameHTML();if(ch.length)chatBind();else decoyBind();vpCardBind();return}
+ if(st==='night'||(a&&a.k==='F')){const ch=chatChans();c.innerHTML=B+decoyHTML()+(ch.length?chatHTML(ch,true):'')+(PH.role?vpCardHTML():'')+vpPanelHTML()+vpFrameHTML();if(ch.length)chatBind();decoyBind();vpCardBind();return}
  if(st==='rev'||!PH.showCard&&!PH.role){c.innerHTML=B+`<div class="phCard"><h2>👀 Tahtaya bak!</h2><p>Roller dağıtılıyor… Sıran gelince kartın belirecek.</p></div>`+vpFrameHTML();return}
  c.innerHTML=B+(PH.floor?`<div class="phCard fl"><h2>🎤 Söz sende!</h2><p>Konuş, herkes seni dinliyor.</p></div>`:'')+`<div class="phCard cardHint"><h3>${st==='day'||st==='vote'?'Tartış ve oy ver!':'Rol kartın hazır'}</h3><p class="muted">Kartına dokun, çevir ve rolünü gör (10 saniye sonra kendiliğinden kapanır).</p>${st==='day'?`<button class="btn ${PH.hand?'yes':''}" id="vpHand">${PH.hand?'✋ Elini indir':'✋ Söz iste'}</button>`:''}</div>`+vpCardHTML()+vpPanelHTML()+vpFrameHTML();vpCardBind();const hb=$('vpHand');if(hb)hb.onclick=()=>{PH.hand=!PH.hand;PH.named.presence({hand:PH.hand?1:0});vpPhRender()}};
 vpPanelHTML=function(){const r=PH.role;if(!r||!['G','A','B','P','Y'].includes(r))return '';const arr=(PH.panels&&PH.panels[r])||[];const T={G:['📜 Dedikodular','Henüz dedikodu yok.'],A:['🕸️ Tuzak Kayıtları','Henüz tuzak kurmadın.'],B:['💣 Sabotaj Kayıtları','Henüz sabotaj yok.'],P:['📋 Denetim Kayıtları','Henüz kimseyi engellemedin.'],Y:['📝 İspiyon Notları','Henüz kimseyi izlemedin.']}[r];return `<div class="pnl"><h4>${T[0]}</h4>${arr.length?arr.slice().reverse().map(x=>`<div><small>Gece ${x.n}</small><br>${esc(x.t)}</div>`).join(''):`<div>${T[1]}</div>`}</div>`};
@@ -753,6 +861,19 @@ function admRender(){const c=$('vpPh');if(!c)return;const S=PH.admSt||{ph:'lobby
  c.querySelectorAll('select[data-pid]').forEach(s=>s.onchange=()=>{PH.asg=PH.asg||{};PH.asg[s.dataset.pid]=s.value});
  chatBind()}
 function admUpd(){if(!PH||!PH.adm)return;const act=document.activeElement;if(act&&act.tagName==='INPUT'&&act.id==='amTxt'){const v=act.value;admRender();const n=$('amTxt');if(n){n.value=v;n.focus()}return}if(act&&act.tagName==='SELECT')return;admRender()}
+// ----- sohbet koruması: anons/ekran yenilenince yazılan mesaj silinmez, klavye kapanmaz -----
+function phKey(){const st=(PH.st&&PH.st.ph)||'lobby',a=PH.act&&PH.act.end>Date.now()-400?PH.act:null,mine=a&&a.w&&a.w.includes(PH.pid)&&a.k!=='X'&&a.k!=='F'?a.sid:'-';
+ return JSON.stringify([PH.kicked,PH.joined,PH.adm,!!PH.end,st,!!(PH.lover&&PH.loverShow>Date.now()),PH.dead,PH.rdy,PH.mode,mine,PH.floor,PH.hand,PH.paused,PH.offline,PH.showCard,PH.role,!!PH.lover,PH.betray,chatChans().join(),PH.ch])}
+const _vpPhRenderC=vpPhRender;
+vpPhRender=function(){if(!PH)return _vpPhRenderC();
+ const ot=document.getElementById('amTxt');let foc=false,s0=null,s1=null;
+ if(ot){PH.drf=PH.drf||{};PH.drf[ot.dataset.c||PH.ch]=ot.value;foc=document.activeElement===ot;try{s0=ot.selectionStart;s1=ot.selectionEnd}catch(e){}}
+ const k=phKey();
+ if(foc&&!PH.adm&&PH.lastKey===k){try{chatUpd();vpPhUpd()}catch(e){}return}
+ PH.lastKey=k;_vpPhRenderC();
+ const nt=document.getElementById('amTxt');if(!nt)return;
+ const v=(PH.drf&&PH.drf[nt.dataset.c||PH.ch])||'';if(v&&nt.value!==v)nt.value=v;
+ if(foc){try{nt.focus({preventScroll:true});if(s0!=null)nt.setSelectionRange(s0,s1)}catch(e){}}};
 window.PHONE2=1;
 })();
 
