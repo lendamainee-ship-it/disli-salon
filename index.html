@@ -366,6 +366,8 @@ function vpPhRender(){const c=$('vpPh');if(!c||!PH)return;
 (function(){
 const MQNS2='dsl-gh/v2/';
 const BROK=window.MQB_OVERRIDE||['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://mqtt.eclipseprojects.io:443/mqtt','wss://test.mosquitto.org:8081'];
+// bağlantı tanılama: hangi santral neden kurulamadı
+window.NETDIAG=window.NETDIAG||{csp:0,fail:{},ok:{}};try{document.addEventListener('securitypolicyviolation',e=>{if(/^wss?:/.test(e.blockedURI||'')||/connect-src/.test(e.violatedDirective||''))NETDIAG.csp++})}catch(e){}
 const te=new TextEncoder(),td=new TextDecoder();
 const u16=n=>[(n>>8)&255,n&255];
 const mstr=s=>{const b=te.encode(s);return [...u16(b.length),...b]};
@@ -379,9 +381,9 @@ function Conn(url,cid,subs,will,onmsg,onstate){
   clearTimeout(me.ct);me.ct=setTimeout(()=>{if(!me.up){try{ws.close()}catch(e){}}},9000);
   ws.onopen=()=>{let fl=2,body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid)];if(will){fl|=4;const wb=te.encode(will.payload);body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid),...mstr(will.topic),...u16(wb.length),...wb]}body[7]=fl;ws.send(pkt(1,0,new Uint8Array(body)))};
   ws.onmessage=ev=>{const d=new Uint8Array(ev.data);const n=new Uint8Array(me.buf.length+d.length);n.set(me.buf);n.set(d,me.buf.length);me.buf=n;parse()};
-  ws.onclose=ws.onerror=()=>{if(me.ws!==ws)return;me.ws=null;clearInterval(me.pt);if(me.up){me.up=false;onstate&&onstate(me)}retry()}}
+  ws.onclose=ws.onerror=()=>{try{if(!me.up)NETDIAG.fail[url]=(NETDIAG.fail[url]||0)+1}catch(e){}if(me.ws!==ws)return;me.ws=null;clearInterval(me.pt);if(me.up){me.up=false;onstate&&onstate(me)}retry()}}
  function parse(){for(;;){const b=me.buf;if(b.length<2)return;let i=1,len=0,mul=1,ok=false;while(i<b.length&&i<5){const c=b[i++];len+=(c&127)*mul;mul*=128;if(!(c&128)){ok=true;break}}if(!ok||b.length<i+len)return;const type=b[0]>>4,fl=b[0]&15,body=b.slice(i,i+len);me.buf=b.slice(i+len);
-  if(type===2){if(body[1]===0){me.up=true;me.bo=1000;clearTimeout(me.ct);subs.forEach((t,k)=>me.ws.send(pkt(8,2,new Uint8Array([...u16(k+1),...mstr(t),0]))));clearInterval(me.pt);me.pt=setInterval(()=>{try{me.ws.send(new Uint8Array([0xC0,0]))}catch(e){}},15000);onstate&&onstate(me)}else{try{me.ws.close()}catch(e){}}}
+  if(type===2){if(body[1]===0){try{NETDIAG.ok[url]=1}catch(e){}me.up=true;me.bo=1000;clearTimeout(me.ct);subs.forEach((t,k)=>me.ws.send(pkt(8,2,new Uint8Array([...u16(k+1),...mstr(t),0]))));clearInterval(me.pt);me.pt=setInterval(()=>{try{me.ws.send(new Uint8Array([0xC0,0]))}catch(e){}},15000);onstate&&onstate(me)}else{try{me.ws.close()}catch(e){}}}
   else if(type===3){const tl=(body[0]<<8)|body[1],topic=td.decode(body.slice(2,2+tl));let p=2+tl;const q=(fl>>1)&3;if(q>0)p+=2;onmsg(topic,td.decode(body.slice(p)),me)}}}
  function retry(){if(me.dead)return;clearTimeout(me.rt);me.rt=setTimeout(connect,me.bo+Math.random()*500);me.bo=Math.min(me.bo*1.7,12000)}
  me.send=(topic,str)=>{if(!me.up||!me.ws||me.ws.readyState!==1)return false;try{me.ws.send(pkt(3,0,new Uint8Array([...mstr(topic),...te.encode(str)])));return true}catch(e){return false}};
@@ -436,7 +438,7 @@ window.mqHost=async function(code){
   if(m.t==='p'){const isNew=!pres[pid],o=pres[pid]||{presence:{},s:-1};if(m.s<=o.s&&!isNew&&m.s!==undefined&&m.s<o.s)return;
    pres[pid]={presence:{...o.presence,...m.p},updatedAt:Date.now(),s:m.s};if(isNew&&net.onOpen)net.onOpen({peer:pid});fire()}}
  M=Mesh(rid('b'),[ns+'/up/+'],null,onmsg);
- await waitUp(M,12000);
+ await waitUp(M,20000);
  net._h=setInterval(()=>{M.pub(down,{t:'h',q,ep:epoch,n:Object.keys(pres).length});M.kick()},2000);
  net._t=setInterval(()=>{const now=Date.now();let ch=false;const lob=typeof VP==='undefined'||!VP||VP.phase==='lobby';Object.keys(pres).forEach(k=>{const o=pres[k],age=now-o.updatedAt;if(o.bye&&age>25000&&lob){delete pres[k];ch=true;return}if(age>90000){o.gone=true;if(lob){delete pres[k];ch=true}}});if(ch)fire()},5000);
  return net};
@@ -469,7 +471,7 @@ window.mqJoin=async function(code,opts){opts=opts||{};
     while(buf[exp]){const e=buf[exp];delete buf[exp];exp++;dispatch(e.topic,e.data)}
     if(Object.keys(buf).length)M.pub(up+'/'+pid,{t:'nak',id:pid,from:exp});status()}}
  M=Mesh(rid('c'),[down],{topic:up+'/'+pid,payload:JSON.stringify({t:'bye',id:pid})},onmsg,()=>{if(M&&M.ups()>0&&synced===false&&!left)M.pub(up+'/'+pid,{t:'sync',id:pid});status()});
- await waitUp(M,12000);
+ await waitUp(M,16000);
  await new Promise((res,rej)=>{const t0=Date.now();const k=setInterval(()=>{if(heard&&synced){clearInterval(k);res()}else if(Date.now()-t0>14000){clearInterval(k);try{M.end()}catch(e){};rej({code:'tahta_bulunamadi'})}else{M.pub(up+'/'+pid,{t:'sync',id:pid})}},1200)});
  net._t=setInterval(()=>{if(left)return;send();if(Date.now()-heard>7000)M.kick();if(!synced||Date.now()-heard>20000)M.pub(up+'/'+pid,{t:'sync',id:pid});status()},2500);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!left)net.resync()});
