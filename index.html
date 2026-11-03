@@ -299,7 +299,7 @@ async function vpPhJoin(){const nick=($('vpNick').value.trim()||'').slice(0,14),
  await n.presence({t:'p',nick,rdy:0,ask:Date.now(),av:gEnc(PH.cfg)});
  n.on('st',m=>{const pph=PH.st&&PH.st.ph,phn=PH.st&&PH.st.hn;PH.st=m.data;let ch=!pph||pph!==m.data.ph||phn!==m.data.hn;if(m.data&&m.data.ph==='lobby'&&(PH.end||PH.role)){vpPhReset();ch=true}if(m.data&&m.data.ph!==pph)vpHintMaybe();if(m.data&&m.data.ph!=='day'&&PH.hand){PH.hand=false;n.presence({hand:0})}if(ch)vpPhRender()});
  n.on('floor',m=>{const me=m.data&&m.data.pid===PH.pid&&PH.pid!==undefined;PH.floor=!!me;if(me&&PH.hand){PH.hand=false;n.presence({hand:0})}vpPhRender()});
- n.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.pid=d.pid;PH.mates=d.m||[];if(d.lv)PH.lover=d.lv;vpPhRender()}});
+ n.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.kara=!!d.kv;PH.pid=d.pid;PH.mates=d.m||[];if(d.lv)PH.lover=d.lv;vpPhRender()}});
  n.on('rev',m=>{if(m.data&&m.data.r===PH.role){PH.showCard=true;vpPhRender()}});
  n.on('act',m=>{const d=m.data;if(!d)return;if(d.k==='X'){if(PH.act&&PH.act.sid===d.sid)PH.act=null;vpPhRender();return}if(PH.act&&PH.act.sid===d.sid&&PH.act.k===d.k){PH.act.end=Date.now()+d.ms;PH.act.al=d.al;return}if(!PH.act||PH.act.sid!==d.sid){PH.pick=null;PH.vpicks=[];PH.vchat=[]}PH.act={...d,end:Date.now()+d.ms};vpPhRender()});
  n.on('vpk',m=>{if(PH.act&&m.data&&m.data.sid===PH.act.sid){PH.vpicks=m.data.picks||[];vpPhUpd()}});
@@ -329,14 +329,14 @@ function vpTryReady(){const v=gViol(PH.cfg);if(!v.length){PH.rdy=true;PH.named.p
  if(PH.fails>4){PH.mode='fix';PH.cfg.acc=0;PH.cfg.coat=1;PH.cfg.tp=0;PH.cfg.bt=0;PH.cfg.mk=0;vpPhRender();setTimeout(()=>{if(!PH)return;PH.mode='design';PH.rdy=true;PH.named.presence({rdy:1,av:gEnc(PH.cfg)});vpPhRender()},4800);return}
  PH.mode='scold';vpPhRender();try{navigator.vibrate&&navigator.vibrate(PH.fails*120)}catch(e){}}
 // ----- rol kartı (kapalı, çevrilir, 10 sn sonra kapanır) -----
-function vpCardHTML(){const r=PH.role,R=VR[r]||VR.C,rl=RRULES[r]||RRULES.C,mates=r==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';const lvH=PH.lover?`<div class="phMate lvM">💘 Aşıksın: <b>${vpEsc(PH.lover.n)}</b> · ${(VR[PH.lover.r]||{}).n||''}</div>`:'',lvR=PH.lover?`<p class="rcRule">💘 ${RRULES.L}</p>`:'';
+function vpCardHTML(){const r=PH.role,R=VR[r]||VR.C,rl=RRULES[r]||RRULES.C,mates=(r==='V'||r==='W')&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';const lvH=PH.lover?`<div class="phMate lvM">💘 Aşıksın: <b>${vpEsc(PH.lover.n)}</b> · ${(VR[PH.lover.r]||{}).n||''}</div>`:'',lvR=PH.lover?`<p class="rcRule">💘 ${RRULES.L}</p>`:'';
  return `<div class="rcWrap"><div class="rc${PH.flip?' flip':''}" id="rc" style="--c:${R.c}"><div class="rcF rcBack"><div class="rcCrest">🦇</div><b>DİŞLİ SALON</b><span>Rol kartın kapalı.<br>Dokun ve çevir!</span></div><div class="rcF rcFront"><div class="rcIc">${R.e}</div><h3>${rl[0]}</h3>${mates}${lvH}<p>${rl[1]}</p><p class="rcRule">${rl[2]}</p>${lvR}<div class="rcBarW"><div id="rcBar" class="rcBar"></div></div></div></div></div>`}
 function vpCardBind(){const rc=$('rc');if(!rc)return;rc.onclick=()=>{if(PH.flip){PH.flip=false;clearTimeout(PH.flipT);rc.classList.remove('flip');return}PH.flip=true;PH.flipEnd=Date.now()+10000;rc.classList.add('flip');clearTimeout(PH.flipT);PH.flipT=setTimeout(()=>{PH.flip=false;const e=$('rc');if(e)e.classList.remove('flip')},10000)}}
 function vpFrameHTML(look){const c=PH.cfg;return `<div class="phFrame${PH.dead?' dd':''}"><div class="phFr">${girlSVG(c,{head:true,role:look})}</div><span>${vpEsc(PH.nick)}</span></div>`}
 function vpActHTML(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Oyunu değiştirebilir veya geri çekebilirsin.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar. (Süre biterse seçtiğin iki kişi yine aşık olur.)'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Oyunu değiştirebilirsin.']}[a.k]||['Seç',''];
- const mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';
+ const mates=(PH.role==='V'||PH.role==='W')&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(vpEsc).join(', ')}</b></div>`:'';
  const vk=a.k==='V';const chat=vk?`<div class="vkChat"><div class="vkMsgs" id="vkMsgs"></div><div class="vkIn"><input id="vkTxt" maxlength="120" placeholder="Vampirlere yaz…" autocomplete="off"><button class="btn" id="vkSend">Gönder</button></div></div>`:'';
- return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${vpEsc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${chat}</div>`}
+ return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q'||a.k==='V').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${vpEsc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${chat}</div>`}
 function vpActBind(a){if(a.k==='Q'){PH.q=[];const ok=$('vpQok');document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p,i=PH.q.indexOf(p);if(i>=0)PH.q.splice(i,1);else{if(PH.q.length>=2)PH.q.shift();PH.q.push(p)}document.querySelectorAll('.phPick').forEach(x=>x.classList.toggle('sel',PH.q.includes(+x.dataset.p)));ok.disabled=PH.q.length!==2});ok.onclick=()=>{PH.named.presence({a:[a.sid,PH.q.slice()]});ok.textContent='💘 Oklar atıldı!';ok.disabled=true};return}
  document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;PH.pick=p;PH.named.presence({a:[a.sid,p]});document.querySelectorAll('.phPick').forEach(x=>x.classList.toggle('sel',+x.dataset.p===p))});
  const uv=$('vpUnvote');if(uv)uv.onclick=()=>{PH.pick=null;PH.named.presence({a:[a.sid,-2]});document.querySelectorAll('.phPick').forEach(x=>x.classList.remove('sel'))};
@@ -430,7 +430,7 @@ window.mqHost=async function(code){
    M.pub(down,{t:'s',to:pid,q,ep:epoch,evs:out})}
  function onmsg(tp,m){const pid=m.id;if(!pid)return;
   if(banned.has(pid)){if(m.t==='p'||m.t==='sync')M.pub(down,{t:'k',to:pid});return}
-  if(m.t==='bye'){if(pres[pid]){delete pres[pid];fire()}return}
+  if(m.t==='bye'){if(pres[pid]){if(m.g){delete pres[pid];fire()}else pres[pid].bye=Date.now()}return}
   if(m.t==='nak'){const from=m.from||0;let n=0;for(const e of log){if(e.q>=from&&n++<80)M.pub(down,{...e,i:undefined,r:1})}return}
   if(m.t==='sync'){if(!pres[pid]){pres[pid]={presence:{},updatedAt:Date.now(),s:-1};if(net.onOpen)net.onOpen({peer:pid})}pres[pid].updatedAt=Date.now();syncTo(pid);return}
   if(m.t==='p'){const isNew=!pres[pid],o=pres[pid]||{presence:{},s:-1};if(m.s<=o.s&&!isNew&&m.s!==undefined&&m.s<o.s)return;
@@ -438,7 +438,7 @@ window.mqHost=async function(code){
  M=Mesh(rid('b'),[ns+'/up/+'],null,onmsg);
  await waitUp(M,12000);
  net._h=setInterval(()=>{M.pub(down,{t:'h',q,ep:epoch,n:Object.keys(pres).length});M.kick()},2000);
- net._t=setInterval(()=>{const now=Date.now();let ch=false;Object.keys(pres).forEach(k=>{if(now-pres[k].updatedAt>45000){pres[k].gone=true;if(typeof VP==='undefined'||!VP||VP.phase==='lobby'){delete pres[k];ch=true}}});if(ch)fire()},5000);
+ net._t=setInterval(()=>{const now=Date.now();let ch=false;const lob=typeof VP==='undefined'||!VP||VP.phase==='lobby';Object.keys(pres).forEach(k=>{const o=pres[k],age=now-o.updatedAt;if(o.bye&&age>25000&&lob){delete pres[k];ch=true;return}if(age>90000){o.gone=true;if(lob){delete pres[k];ch=true}}});if(ch)fire()},5000);
  return net};
 // ===== TELEFON =====
 window.mqJoin=async function(code,opts){opts=opts||{};
@@ -454,10 +454,10 @@ window.mqJoin=async function(code,opts){opts=opts||{};
   on:(t,f)=>{(ev[t]=ev[t]||[]).push(f);(net._init||[]).filter(e=>e.topic===t).forEach(e=>setTimeout(()=>{try{f({topic:t,data:e.data})}catch(x){console.log('hata',t,x)}},0));return()=>{}},emit:async()=>{},
   online:()=>M.ups()>0&&Date.now()-heard<9000,
   resync:()=>{M.kick();M.pub(up+'/'+pid,{t:'sync',id:pid});send()},
-  leave:async()=>{left=true;clearInterval(net._t);M.end(up+'/'+pid,{t:'bye',id:pid})}};
+  leave:async()=>{left=true;clearInterval(net._t);M.end(up+'/'+pid,{t:'bye',id:pid,g:1})}};
  const status=()=>{if(net.onStatus)try{net.onStatus(net.online())}catch(e){}};
  function onmsg(tp,m){
-  if(m.t==='k'){if(m.to===pid){kicked=true;left=true;if(net.onKick)net.onKick();M.end()}return}
+  if(m.t==='k'){if(m.to===pid){try{localStorage.removeItem('dsl_pid')}catch(e){}kicked=true;left=true;if(net.onKick)net.onKick();M.end()}return}
   if(m.t==='x'){heard=0;status();return}
   heard=Date.now();
   if(m.t==='h'){if(epoch!==m.ep){epoch=m.ep;exp=null;synced=false}
@@ -761,7 +761,7 @@ vpPhJoin=async function(auto){if(!PH||PH.joining||PH.joined)return;
  net.on('st',m=>{const pph=PH.st&&PH.st.ph,phn=PH.st&&PH.st.hn;PH.st=m.data;let ch=!pph||pph!==m.data.ph||phn!==m.data.hn;if(m.data&&m.data.ph==='lobby'&&(PH.end||PH.role)){vpPhReset();ch=true}if(m.data&&m.data.ph!==pph)vpHintMaybe();if(m.data&&m.data.ph!=='day'&&PH.hand){PH.hand=false;net.presence({hand:0})}if(ch)ph()});
  net.on('pause',m=>{PH.paused=!!(m.data&&m.data.on);ph()});
  net.on('floor',m=>{const me=m.data&&m.data.pid===PH.pid&&PH.pid!==undefined;PH.floor=!!me;if(me&&PH.hand){PH.hand=false;net.presence({hand:0})}ph()});
- net.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.pid=d.pid;PH.mates=d.m||[];PH.revKey=d.rk||null;if(d.lv)PH.lover=d.lv;PH.dead=!!d.dd||(PH.deadL||[]).includes(d.pid);ph()}});
+ net.on('role',m=>{const d=m.data;if(d&&d.to===PH.peer){PH.role=d.r;PH.kara=!!d.kv;PH.pid=d.pid;PH.mates=d.m||[];PH.revKey=d.rk||null;if(d.lv)PH.lover=d.lv;PH.dead=!!d.dd||(PH.deadL||[]).includes(d.pid);ph()}});
  net.on('rev',m=>{if(m.data&&m.data.r===PH.role&&PH.role){PH.showCard=true;ph()}});
  net.on('act',m=>{const d=m.data;if(!d)return;if(d.k==='X'){if(PH.act&&PH.act.sid===d.sid)PH.act=null;ph();return}if(PH.act&&PH.act.sid===d.sid&&PH.act.k===d.k){PH.act.end=Date.now()+d.ms;PH.act.al=d.al;return}if(!PH.act||PH.act.sid!==d.sid){PH.pick=null;PH.vpicks=[];PH.vchat=[];PH.mm=0;PH.vm=0}PH.act={...d,end:Date.now()+d.ms,ms0:d.ms};ph()});
  net.on('vpk',m=>{if(PH.act&&m.data&&m.data.sid===PH.act.sid){PH.vpicks=m.data.picks||[];vpPhUpd()}});
@@ -791,7 +791,7 @@ vpTryReady=function(){if(PH.rdyBusy)return;const v=gViol(PH.cfg);
  PH.mode='scold';vpPhRender();try{navigator.vibrate&&navigator.vibrate(PH.fails*120)}catch(e){}};
 // ----- gece sohbeti (Among Us tarzı) -----
 function chBubble(x){const me=x.fp===PH.peer;return `<div class="amM${me?' me':''}${x.adm?' adm':''}"><span class="amAv">${x.adm?'<em>👑</em>':girlSVG(gDec(x.av),{head:true})}</span><div class="amB"><b>${esc(x.f)}</b><p>${esc(x.t)}</p></div></div>`}
-function chatChans(){const o=[];if(PH.role==='V')o.push('V');if(PH.lover)o.push('L');return o}
+function chatChans(){const o=[];if(PH.role==='V'||PH.role==='W')o.push('V');if(PH.lover)o.push('L');return o}
 function chatHTML(chs,full){chs=chs||chatChans();if(!chs.length)return '';if(!chs.includes(PH.ch))PH.ch=chs[0];
  const tabs=chs.length>1||full?`<div class="amTabs">${chs.map(c=>`<button class="amT${PH.ch===c?' sel':''}" data-c="${c}">${c==='V'?'🦇 Vampirler':'💘 Aşıklar'}</button>`).join('')}</div>`:`<div class="amHd">${PH.ch==='V'?'🦇 Vampir sohbeti':'💘 Aşıklar sohbeti'}</div>`;
  return `<div class="amC${full?' full':''}">${tabs}<div class="amMsgs" id="amMsgs">${chMsgsHTML()}</div><div class="amIn"><input id="amTxt" data-c="${PH.ch}" maxlength="140" placeholder="Mesaj yaz…" autocomplete="off"><button id="amSend">➤</button></div></div>`}
@@ -805,11 +805,11 @@ function decoyHTML(){const q=DQ[PH.dqi%DQ.length];return `<div class="phCard sle
 function decoyBind(){document.querySelectorAll('.dqB .btn').forEach(b=>b.onclick=()=>{try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}const c=document.querySelector('.decoy');if(c){c.classList.add('ans');const p=c.querySelector('.dqQ');if(p)p.textContent='Kaydedildi 😄';c.querySelector('.dqB').style.visibility='hidden'}clearTimeout(PH.dqT);PH.dqT=setTimeout(()=>{if(!PH)return;PH.dqi=dqNext();decoySwap()},900)})}
 // ----- eylem ekranı -----
 vpActHTML=function(a,me){const T={V:['🧛 Kimi ısıracaksınız?','Vampirler <b>ortak</b> tek kişi seçer. Eşinin seçimi altta görünür.'],D:['💉 Kimi koruyacaksın?','Kendini de seçebilirsin. Dün koruduğun kişiyi bu gece koruyamazsın.'],H:['✂️ Makasını kime fırlatacaksın?','İstersen vazgeçebilirsin'],T:['🗳️ Kim vampir?','Birini seç ya da pas ver. Süre bitince oy kullanmayanların hakkı yanar.'],Q:['💘 İki kişiyi aşık et','İKİ kişi seç, sonra "Okla!"ya bas. Birbirlerine aşık olacaklar. (Süre biterse seçtiğin iki kişi yine aşık olur.)'],Y:['💄 Kimi izleyeceksin?','Seçtiğin kişinin gece <b>nereye gittiğini</b> öğrenirsin ama ne yaptığını bilemezsin. Gitmek suç değildir!'],A:['🕸️ Kimin kapısına tuzak kuracaksın?','O gece ona ilk gelen ağda tuzağına yapışır.'],G:['🔮 Kimi gözetleyeceksin?','Sabah ona kimlerin gittiğini öğrenirsin.'],R:['⚖️ Kim asılsın?','Sadece bu adaylardan birini seç. Süre bitince oy kullanmayanların hakkı yanar.'],P:['👮 Kimin gücünü engelleyeceksin?','Seçtiğin kişi bu gece rolünü kullanamaz. Dün engellediğin kişiyi seçemezsin.'],B:['💅 Kimin salonunu sabote edeceksin?','Seçtiğinin kozmetik ürünlerini sabote edersin. İstersen sabote ettiklerini PATLAT!']}[a.k]||['Seç',''];
- const mates=PH.role==='V'&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(esc).join(', ')}</b></div>`:'';
+ const mates=(PH.role==='V'||PH.role==='W')&&PH.mates&&PH.mates.length?`<div class="phMate">🧛 Vampir eşin: <b>${PH.mates.map(esc).join(', ')}</b></div>`:'';
  const vk=a.k==='V',cv=vk&&a.cv,bb=a.k==='B';
  const extra=(cv?`<div class="vmSw"><button class="vmB${PH.vm?'':' sel'}" data-m="0">☠️ Isır (öldür)</button><button class="vmB${PH.vm?' sel':''}" data-m="1">🧛 Vampire çevir</button></div>`:'')+(bb&&a.pl&&a.pl.length?`<div class="phMate bmb">💣 Sabote ettiklerin: <b>${a.pl.map(esc).join(', ')}</b></div>`:'');
  const vcht=vk?chatHTML(['V'].concat(PH.lover?['L']:[]),false):'';
- return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}${extra}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${bb&&a.pl&&a.pl.length?`<button class="phPick boom${PH.pick===-3?' sel':''}" data-p="-3">💥 PATLAT! (${a.pl.length} kişi)</button>`:''}${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${esc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'||bb?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':bb?'😴 Bu gece bir şey yapma':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${a.k==='T'||a.k==='R'?'':`<div class="phSent" id="phSent"></div>`}${vcht}</div>`};
+ return `<div class="phCard act"><h2>${T[0]}</h2><p>${T[1]}</p>${mates}${extra}<div class="phTm"><div class="phBar" id="vpPhBar"></div><b id="vpPhTm">${Math.ceil(a.ms/1000)}</b></div><div class="phList" id="phList">${bb&&a.pl&&a.pl.length?`<button class="phPick boom${PH.pick===-3?' sel':''}" data-p="-3">💥 PATLAT! (${a.pl.length} kişi)</button>`:''}${(a.al||[]).filter(x=>x[0]!==me||a.k==='D'||a.k==='Q'||a.k==='V').map(x=>`<button class="phPick${PH.pick===x[0]?' sel':''}" data-p="${x[0]}"><span>${esc(x[1])}</span><em class="vkB" data-t="${x[0]}"></em></button>`).join('')}${a.k==='H'||a.k==='T'||bb?`<button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">${a.k==='H'?'🙅 Vazgeç':bb?'😴 Bu gece bir şey yapma':'🤷 Pas geç'}</button>`:''}</div>${a.k==='Q'?'<button class="btn yes" id="vpQok" disabled>💘 Okla!</button>':''}${a.k==='T'||a.k==='R'?'<button class="btn no" id="vpUnvote">↩ Oyumu geri çek</button>':''}${vk&&PH.betray?'<button class="btn no" id="vpBetray">💔 Vampir eşimi öldür (aşıklar kazansın)</button>':''}${a.k==='T'||a.k==='R'?'':`<div class="phSent" id="phSent"></div>`}${vcht}</div>`};
 vpActBind=function(a){const sent=t=>{const e=$('phSent');if(e)e.textContent=t};
  if(a.k==='Q'){PH.q=PH.q||[];const ok=$('vpQok');const sync=()=>{document.querySelectorAll('.phPick').forEach(x=>x.classList.toggle('sel',PH.q.includes(+x.dataset.p)));ok.disabled=PH.q.length!==2};
   document.querySelectorAll('.phPick').forEach(b=>b.onclick=()=>{const p=+b.dataset.p,i=PH.q.indexOf(p);if(i>=0)PH.q.splice(i,1);else{if(PH.q.length>=2)PH.q.shift();PH.q.push(p)}sync();try{PH.named.presence({qd:[a.sid,PH.q.slice()]})}catch(e){}});sync();
@@ -823,7 +823,7 @@ vpActBind=function(a){const sent=t=>{const e=$('phSent');if(e)e.textContent=t};
 vpPhUpd=function(){chatUpd();document.querySelectorAll('.vkB').forEach(e=>{const t=+e.dataset.t,who=(PH.vpicks||[]).filter(x=>x[1]===t).map(x=>x[0]);e.innerHTML=who.map(n=>`<i>🧛 ${esc(n)}</i>`).join('')})};
 // ----- kart (sorunlu müşteri kendi sandığı rolü görür) -----
 // ----- ana çizim -----
-function endHTML(){const e=PH.end,my=PH.role,won=e.win==='X'?null:(e.wp&&PH.pid!==undefined)?e.wp.includes(PH.pid):false;const T={L:'💘 AŞK KAZANDI!',V:'🦇 Vampirler kazandı!',C:'🎉 Müşteriler kazandı!',B:'💅 Rakip Salon Sahibi kazandı!',T:'💸 Tazminat Avcısı kazandı!',X:'🏁 Oyun yönetici tarafından bitirildi'}[e.win]||'Oyun bitti';
+function endHTML(){const e=PH.end,my=PH.role,won=e.win==='X'?null:(e.wp&&PH.pid!==undefined)?e.wp.includes(PH.pid):false;const T={L:'💘 AŞK KAZANDI!',V:'🦇 Vampirler kazandı!',C:'🎉 Müşteriler kazandı!',B:'💅 Rakip Salon Sahibi kazandı!',T:'💸 Tazminat Avcısı kazandı!',W:'🤍 Beyaz Vampir kazandı!',X:'🏁 Oyun yönetici tarafından bitirildi'}[e.win]||'Oyun bitti';
  return `<div class="phCard"><h2>${T}${e.lv?' · 💘 Aşıklar da!':''}</h2><p>${won===null?'':won?'Senin takımın kazandı! 🏆':'Bu sefer olmadı… 😅'}</p><div class="phRoles">${e.roles.map(r=>{const R=VR[r[1]]||VR.C;return `<div style="--c:${R.c}">${R.e} <b>${esc(r[0])}</b> <small>${R.n}${r[2]?'':' 💀'}</small></div>`}).join('')}</div></div>`}
 vpPhRender=function(){const c=$('vpPh');if(!c||!PH)return;
  if(PH.kicked){c.innerHTML='<div class="phCard"><h2>🚪 Oyundan çıkarıldın</h2><p>Öğretmen seni oyundan çıkardı. Yeniden katılmak için sayfayı yenile.</p><button class="btn yes" onclick="location.reload()">Yeniden dene</button></div>';return}
@@ -848,7 +848,7 @@ vpPhRender=function(){const c=$('vpPh');if(!c||!PH)return;
 vpPanelHTML=function(){const r=PH.role;if(!r||!['G','A','B','P','Y'].includes(r))return '';const arr=(PH.panels&&PH.panels[r])||[];const T={G:['📜 Dedikodular','Henüz dedikodu yok.'],A:['🕸️ Tuzak Kayıtları','Henüz tuzak kurmadın.'],B:['💣 Sabotaj Kayıtları','Henüz sabotaj yok.'],P:['📋 Denetim Kayıtları','Henüz kimseyi engellemedin.'],Y:['📝 İspiyon Notları','Henüz kimseyi izlemedin.']}[r];return `<div class="pnl"><h4>${T[0]}</h4>${arr.length?arr.slice().reverse().map(x=>`<div><small>Gece ${x.n}</small><br>${esc(x.t)}</div>`).join(''):`<div>${T[1]}</div>`}</div>`};
 // ----- yönetici ekranı -----
 function admCmd(o){PH.aqn++;o.n=PH.aqn;PH.aq.push(o);if(PH.aq.length>8)PH.aq.shift();PH.named.presence({aq:PH.aq.slice()});}
-const ROLEOPT=[['','🎲 Rastgele'],['V','🧛 Vampir'],['D','💉 Cilt Bakım'],['H','✂️ Kuaför'],['C','💆 Müşteri'],['Q','💘 Aşk Meleği'],['G','🔮 Dedikoducu'],['A','🕸️ Ağda Tuzakçısı'],['Y','💄 Patron Yağcısı'],['P','👮 Zabıta'],['M','🤪 Sorunlu Müşteri'],['B','💅 Rakip Salon'],['T','💸 Tazminat Avcısı']];
+const ROLEOPT=[['','🎲 Rastgele'],['V','🧛 Vampir'],['D','💉 Cilt Bakım'],['H','✂️ Kuaför'],['C','💆 Müşteri'],['Q','💘 Aşk Meleği'],['G','🔮 Dedikoducu'],['A','🕸️ Ağda Tuzakçısı'],['Y','💄 Patron Yağcısı'],['E','🔍 Ayna Dedektifi'],['W','🤍 Beyaz Vampir'],['K','🖤 Kara Vampir'],['P','👮 Zabıta'],['M','🤪 Sorunlu Müşteri'],['B','💅 Rakip Salon'],['T','💸 Tazminat Avcısı']];
 function admRender(){const c=$('vpPh');if(!c)return;const S=PH.admSt||{ph:'lobby',pl:[]},ph=S.ph||'lobby';let h=banner()+`<div class="phCard adm"><h2>👑 Yönetici</h2><p class="muted">${esc(PH.nick)} · aşama: <b>${({lobby:'Lobi',assign:'Rol dağıtımı',rev:'Roller açılıyor',night:'Gece',day:'Gündüz',vote:'Oylama',end:'Bitti'})[ph]||ph}</b></p>`;
  if(ph==='lobby'){h+=`<p>Oyuncular (${(S.pl||[]).length}):</p><div class="admPl">${(S.pl||[]).map(p=>`<span>${esc(p[1])}${p[5]?' ✅':''}</span>`).join('')||'<i>Henüz kimse yok</i>'}</div><button class="btn yes" data-c="start">▶ Oyunu başlat</button>`}
  else if(ph==='assign'){h+=`<p>Her oyuncuya rol seç. Boş bırakırsan rastgele atanır.</p><div class="admAs">${(S.pl||[]).map(p=>`<div class="admRow"><b>${esc(p[1])}</b><select data-pid="${p[0]}">${ROLEOPT.map(o=>`<option value="${o[0]}"${(PH.asg||{})[p[0]]===o[0]?' selected':''}>${o[1]}</option>`).join('')}</select></div>`).join('')}</div><div class="admBt"><button class="btn" id="admRnd">🎲 Hepsini rastgele dağıt</button><button class="btn yes" id="admGo">✅ Rolleri dağıt ve başlat</button></div>`}
@@ -876,6 +876,79 @@ vpPhRender=function(){if(!PH)return _vpPhRenderC();
  if(foc){try{nt.focus({preventScroll:true});if(s0!=null)nt.setSelectionRange(s0,s1)}catch(e){}}};
 window.PHONE2=1;
 })();
+// ===== AYNA DEDEKTİFİ (rol E): ortak tanımlar + öğrenci kostümü + telefon paneli =====
+(function(){
+if(typeof VR!=='undefined')VR.E=VR.E||{n:'Ayna Dedektifi',e:'🔍',c:'#f0b860'};
+if(typeof RRULES!=='undefined')RRULES.E=['Ayna Dedektifi','Her gece birinin <b>çift taraflı aynasına</b> bakarsın. Sabah aynada <b>iki rol</b> belirir: biri o kişinin <b>gerçek rolü</b>, diğeri <b>sahte</b>. Hangisinin doğru olduğunu sen çözmelisin!','Müşteri takımındasın. <b>Aynı kişiye tekrar bakarsan</b> ayna farklı bir yalan söyler; iki gecede de çıkan rol gerçektir. Zabıta seni engellerse ya da ağda tuzağına yapışırsan o gece aynada bir şey göremezsin.'];
+if(typeof HINTS!=='undefined')HINTS.E=['Aynı kişiye ikinci kez bakarsan ayna başka bir yalan söyler: iki gecede de çıkan rol o kişinin gerçek rolüdür!','Sahte rol de oyundaki rollerden seçilir; gördüğün iki rol de gerçekten oyunda olabilir.','Bulduğunu hemen herkese söyleme: vampirler seni fark ederse ilk hedef sen olursun.','Biri gündüz "Ben Cilt Bakım Uzmanıyım" diyorsa aynada gördüğünle karşılaştır. Uyuşmuyorsa yalan söylüyor olabilir!','Kapısına gittiğin için Dedikoducu seni görebilir, Patron Yağcısı da nereye gittiğini öğrenebilir.'];
 
+// ---- öğrenci kostümü: krem-karamel trençkot, kareli dedektif şapkası, çift taraflı makyaj aynası ----
+if(typeof girlKit==='function'){
+ const _gkE=girlKit;
+ girlKit=function(r){if(r!=='E')return _gkE(r);const k={};
+  const CO='#e3ad62',CS='#7a4a1a',CD='#c48a42';
+  k.mid=`<path d="M${gx_dress(262,12,134).slice(1)}" fill="${CO}" stroke="${CS}" stroke-width="2.4" stroke-linejoin="round"/>`
+   +`<path d="M80 150V262" stroke="${CS}" stroke-width="1.8"/>`
+   +`<path d="M62 126L80 150L98 126L104 132L90 168L80 150L70 168L56 132Z" fill="${CD}" stroke="${CS}" stroke-width="2" stroke-linejoin="round"/>`
+   +`<path d="M68 124L80 146L92 124Q80 118 68 124Z" fill="#ff7ac8" stroke="#a0145a" stroke-width="1.8" stroke-linejoin="round"/><path d="M71 127L80 142L89 127" fill="none" stroke="#ffc2e6" stroke-width="1.4"/>`
+   +`<g fill="#6a3a12" stroke="#3a1a04" stroke-width="1"><circle cx="72" cy="160" r="2.4"/><circle cx="88" cy="160" r="2.4"/><circle cx="72" cy="172" r="2.4"/><circle cx="88" cy="172" r="2.4"/></g>`
+   +`<path d="M57 182Q80 192 103 182L104 191Q80 201 56 191Z" fill="#8a5420" stroke="#3a1a04" stroke-width="1.8" stroke-linejoin="round"/><rect x="73" y="183" width="14" height="11" rx="2" fill="none" stroke="#ffd23f" stroke-width="2.4"/><path d="M80 188.5H86" stroke="#ffd23f" stroke-width="2"/><path d="M92 193L96 214L90 211Z" fill="#8a5420" stroke="#3a1a04" stroke-width="1.4" stroke-linejoin="round"/>`
+   +`<path d="M62 210L72 206M88 206L98 210" stroke="${CS}" stroke-width="2.4" stroke-linecap="round"/>`
+   +gx_both(gx_slv(CO,CS,'long',14.4)+`<path d="M40 190L55 195" stroke="#8a5420" stroke-width="4.4" stroke-linecap="round"/>`);
+  k.nocoat=1;k.notp=1;k.nobt=1;
+  k.over=`<defs><pattern id="edkS" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#c98a4a"/><path d="M0 4H8M4 0V8" stroke="#8a5420" stroke-width="1.6"/><path d="M0 0L8 8" stroke="#e8b878" stroke-width=".9"/></pattern></defs>`
+   +`<path d="M41 52Q38 4 80 0Q122 4 119 52Q80 38 41 52Z" fill="url(#edkS)" stroke="#4a2808" stroke-width="3" stroke-linejoin="round"/><path d="M80 1V40M60 6Q56 26 58 44M100 6Q104 26 102 44" stroke="#4a2808" stroke-width="1.6" fill="none" opacity=".7"/>`
+   +`<path d="M38 50Q80 34 122 50L126 60Q80 46 34 60Z" fill="#a8682a" stroke="#4a2808" stroke-width="2.4" stroke-linejoin="round"/>`
+   +`<path d="M44 34Q40 18 54 12L58 30Z M116 34Q120 18 106 12L102 30Z" fill="url(#edkS)" stroke="#4a2808" stroke-width="2" stroke-linejoin="round"/>`
+   +`<g transform="translate(80 -2)"><path d="M0 0L-13 -8L-13 8Z M0 0L13 -8L13 8Z" fill="#ff7ac8" stroke="#a0145a" stroke-width="1.8" stroke-linejoin="round"/><circle r="3.4" fill="#ff4fa3" stroke="#a0145a" stroke-width="1.4"/></g>`
+   +`<path d="M53 63Q63 53 74 60" stroke="#3a2010" stroke-width="3.4" fill="none" stroke-linecap="round"/><path d="M86 68Q96 64 107 67" stroke="#3a2010" stroke-width="3.4" fill="none" stroke-linecap="round"/>`
+   +`<path d="M85 71Q96 67 107 71L107 75Q96 71 85 75Z" fill="#f6d3b8"/><path d="M85 74Q96 70 107 74" stroke="#1d1147" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  k.add=`<g transform="translate(115 214) rotate(14)"><rect x="-3.4" y="-30" width="6.8" height="34" rx="3.4" fill="#ff7ac8" stroke="#a0145a" stroke-width="1.8"/><circle cx="0" cy="-44" r="17" fill="#ff7ac8" stroke="#a0145a" stroke-width="2.4"/><circle cx="0" cy="-44" r="13" fill="#bfefff" stroke="#fff" stroke-width="1.4"/><path d="M-13 -44A13 13 0 0 1 13 -44Z" fill="#ffd0ea" opacity=".85"/><path d="M-12 -44H12" stroke="#a0145a" stroke-width="1.2" stroke-dasharray="2 2"/><text x="-5" y="-48" font-size="9" font-weight="900" text-anchor="middle" fill="#a0145a" font-family="Arial">?</text><text x="5" y="-34" font-size="9" font-weight="900" text-anchor="middle" fill="#1e6aa0" font-family="Arial">?</text><path d="M-8 -52Q-3 -56 2 -55" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="0" cy="-62" r="2.4" fill="#ffd23f" stroke="#a37f00" stroke-width="1"/></g>`
+   +`<g transform="translate(34 208) rotate(-8)"><rect x="0" y="0" width="22" height="28" rx="2.4" fill="#fff6e0" stroke="#7a4a1a" stroke-width="2"/><path d="M4 0V28" stroke="#ff7ac8" stroke-width="2.4"/><path d="M8 8H19M8 13H19M8 18H16" stroke="#c8a070" stroke-width="1.4"/><text x="13" y="26" font-size="7" font-weight="900" text-anchor="middle" fill="#c0102a" font-family="Arial">?!</text></g>`;
+  k.shoes=gx_both('<path d="M60 296Q57 304 62 309H84Q86 301 77 296Z" fill="#6a3a12" stroke="#2a1404" stroke-width="2"/>');
+  return k};
+}
+
+// ---- telefon: eylem başlığı ve panel ----
+if(typeof vpActHTML==='function'){const _ah=vpActHTML;vpActHTML=function(a,me){let h=_ah(a,me);if(a&&a.k==='E')h=h.replace(/<h2>Seç<\/h2><p><\/p>/,'<h2>🔍 Kimin aynasına bakacaksın?</h2><p>Sabah aynada <b>iki rol</b> belirir: biri o kişinin <b>gerçek</b> rolü, diğeri <b>sahte</b>. Hangisi doğru, sen çöz!</p>');return h}}
+if(typeof vpPanelHTML==='function'){const _pn=vpPanelHTML;const E=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const chip=r=>{const R=VR[r]||VR.C;return `<span class="dtC" style="--c:${R.c}">${R.e} ${E(R.n)}</span>`};
+ vpPanelHTML=function(){if(!PH||PH.role!=='E')return _pn();const arr=(PH.panels&&PH.panels.E)||[];
+  return `<div class="pnl dtP"><h4>🪞 Ayna Kayıtları</h4>${arr.length?arr.slice().reverse().map(x=>{const t=String(x.t||'');const m=t.split('|');
+   const body=m[0]==='AYNA'&&m.length>=4?`<b>${E(m[1])}</b> aynada iki yüz gösterdi:<span class="dtRow">${chip(m[2])}<i>ya da</i>${chip(m[3])}</span><small class="dtS">Biri doğru, biri yalan! 🤔</small>`:E(t);
+   return `<div><small>Gece ${x.n}</small><br>${body}</div>`}).join(''):'<div>Henüz kimsenin aynasına bakmadın.</div>'}</div>`}}
+try{const st=document.createElement('style');st.textContent='.dtRow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 0 2px}.dtRow i{font-style:normal;opacity:.75;font-size:.85em}.dtC{display:inline-block;padding:4px 10px;border-radius:12px;background:#0006;border:2px solid var(--c);color:#fff;font-weight:800;box-shadow:0 0 10px var(--c)}.dtS{opacity:.75}';document.head.appendChild(st)}catch(e){}
+})();
+// ===== BEYAZ VAMPİR (rol W): ortak tanımlar + öğrenci kostümü + telefonda gizli ısırık =====
+(function(){
+if(typeof VR!=='undefined')VR.W=VR.W||{n:'Beyaz Vampir',e:'🤍',c:'#bfe6ff'};
+if(typeof RRULES!=='undefined')RRULES.W=['Beyaz Vampir','<b>Tarafsızsın, tek başına kazanırsın!</b> Vampirler seni sıradan vampir sanır. Onlarla uyan, ortak ısırığa katıl, sohbetlerine yaz. Vampirlerden sonra <b>tek başına bir kez daha uyanırsın</b>: istersen bir vampiri sessizce öldürürsün.','🤫 <b>SESSİZ OL!</b> Beyaz vampir olduğunu kimseye belli etme. Sona kadar vampirlerle çalış, sonra onları da ısır ya da astır. Herkes elenince <b>sen kazanırsın</b>.'];
+if(typeof HINTS!=='undefined'){HINTS.W=['Erken davranma: vampirler sayıca azalırsa müşteriler seni de bulur. Önce müşterileri vampirlerle birlikte azalt.','Gizli ısırığın bir vampiri öldürürse sabah vampirler şüphelenir; vampir sohbetinde sakin ve masum ol.','Vampir sohbetinde fazla konuşma da fazla susma da: normal bir vampir gibi davran.','Gündüz bir vampiri astırmak, gece onu ısırmaktan daha az şüphe çeker.','Vampirler seni fark ederse ortak seçimde seni ısırabilirler. Dikkat!'];
+ if(HINTS.V)HINTS.V=HINTS.V.concat(['Aranızda gizli bir Beyaz Vampir olabilir! Bir vampir eşin gece gizlice ölürse ondan şüphelen; ortak seçimde birbirinizi de ısırabilirsiniz.'])}
+if(typeof RRULES!=='undefined'&&RRULES.V&&!/Beyaz Vampir/.test(RRULES.V[2])){RRULES.V[1]=RRULES.V[1].replace(/ ?<b>2\. gece<\/b>[^]*?çevirebilirsiniz<\/b>\./,' Birini vampire dönüştürme hakkı sadece <b>🖤 Kara Vampir</b>\'dedir.');RRULES.V[2]+=' ⚠️ Aranızda gizli bir <b>Beyaz Vampir</b> olabilir! Ortak seçimde birbirinizi bile ısırabilirsiniz.'}
+if(typeof girlKit==='function'){
+ const _gkW=girlKit;const MAP=[['#ff2a4a','#6ad8ff'],['#8a1030','#b8c4e8'],['#14081c','#f6f4ff'],['#2a0a1c','#e8ecfa'],['#0a0410','#8a94b8'],['#2a0008','#1a3a5a'],['#d6102a','#6ad8ff'],['"#000"','"#6a7498"']];
+ const rc=s=>{if(typeof s!=='string')return s;MAP.forEach(([a,b])=>{s=s.split(a).join(b)});return s};
+ girlKit=function(r){if(r!=='W')return _gkW(r);const k=_gkW('V'),o={};Object.keys(k).forEach(x=>o[x]=Array.isArray(k[x])?k[x]:rc(k[x]));
+  o.over=(o.over||'')+'<path d="M58 18Q80 4 102 18L96 30L88 20L80 32L72 20L64 30Z" fill="#eaf6ff" stroke="#6a7498" stroke-width="2" stroke-linejoin="round"/><circle cx="80" cy="22" r="3" fill="#6ad8ff" stroke="#2a5a8a" stroke-width="1.2"/>';return o};
+}
+})();
+// ===== KARA VAMPİR (rol K) + Beyaz/Kara vampir gece kararı ekranları (telefon) =====
+(function(){
+if(typeof VR!=='undefined')VR.K=VR.K||{n:'Kara Vampir',e:'🖤',c:'#9a5aff'};
+if(typeof RRULES!=='undefined')RRULES.K=['Kara Vampir','Sen de bir <b>vampirsin</b>: her gece eşlerinle birlikte <b>TEK</b> bir kişiyi seçip ısırırsın, vampir sohbetine yazarsın, vampirlerle birlikte kazanırsın. <b>Tek farkın:</b> birini <b>vampire dönüştürebilirsin</b>!','🖤 Dönüştürme hakkın <b>sadece 2. veya 3. gece</b>, <b>bir kez</b>. Önce de sonra da kullanamazsın. Vampirlerden sonra tek başına uyanırsın; eşlerinle sohbetten konuşup kimi yanınıza çekeceğinize karar verin. Seçtiğin kişi sabah vampir olur.'];
+if(typeof HINTS!=='undefined')HINTS.K=['Dönüştürme hakkın sadece 2. ve 3. gece! Kaçırma.','Kimi dönüştüreceğinize vampir sohbetinde birlikte karar verin.','Güçlü bir rolü (Cilt Bakım, Zabıta, Dedektif…) yanınıza çekmek müşterileri çok zorlar.','Aranızda gizli bir Beyaz Vampir olabilir; dönüştürme ona işlemez.'];
+if(typeof girlKit==='function'){const _gkK=girlKit;const MAP=[['#ff2a4a','#b07aff'],['#8a1030','#3a1a6a'],['#2a0a1c','#14081c'],['#d6102a','#9a5aff'],['#ece3f1','#e6dcef']];
+ girlKit=function(r){if(r!=='K')return _gkK(r);const k=_gkK('V'),o={};Object.keys(k).forEach(x=>{let v=k[x];if(typeof v==='string')MAP.forEach(([a,b])=>{v=v.split(a).join(b)});o[x]=v});
+  o.over=(o.over||'')+'<path d="M56 22L62 4L72 16L80 0L88 16L98 4L104 22Q80 30 56 22Z" fill="#14081c" stroke="#9a5aff" stroke-width="2" stroke-linejoin="round"/><circle cx="80" cy="14" r="3" fill="#b07aff"/>';return o}}
+// kara bayrağı: kart / çerçeve Kara Vampir gösterir
+if(typeof vpCardHTML==='function'){const _c=vpCardHTML;vpCardHTML=function(){if(PH&&PH.kara&&PH.role==='V'){PH.role='K';try{return _c.apply(this,arguments)}finally{PH.role='V'}}return _c.apply(this,arguments)}}
+if(typeof vpFrameHTML==='function'){const _f=vpFrameHTML;vpFrameHTML=function(look){if(look==='V'&&PH&&PH.kara)look='K';return _f.call(this,look)}}
+// gece karar ekranları: W (gizli ısırık) ve K (dönüştürme)
+if(typeof vpActHTML==='function'){const _ah=vpActHTML;const hd=(t,s)=>`<h2>${t}</h2><p>${s}</p>`;
+ vpActHTML=function(a,me){if(a&&a.k==='W'){let h=_ah({...a,k:'H'},me);h=h.replace(/<h2>[\s\S]*?<\/h2><p>[\s\S]*?<\/p>/,hd('🤍 Gizli ısırık','Sadece sen görürsün. İstersen bir vampiri <b>sessizce</b> öldür. Sabah sadece "biri gizlice ısırıldı" denir.')).replace('🙅 Vazgeç','🙅 Bu gece kimseyi');return h}
+  if(a&&a.k==='K'){let h=_ah({...a,k:'V',cv:0},me);h=h.replace(/<h2>[\s\S]*?<\/h2><p>[\s\S]*?<\/p>/,hd('🖤 Kimi vampire dönüştüreceksin?','Seçtiğin kişi sabah <b>vampir</b> olur. Bu hakkın sadece <b>2. ve 3. gece</b>, <b>bir kez</b>. Eşlerinle sohbetten konuşabilirsin.')).replace('<div class="phList" id="phList">',`<div class="phList" id="phList"><button class="phPick skip${PH.pick===-1?' sel':''}" data-p="-1">🙅 Kimseyi dönüştürme</button>`);return h}
+  return _ah(a,me)}}
+})();
 vpPhoneOpen();
 </script></body></html>
