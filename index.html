@@ -365,7 +365,7 @@ function vpPhRender(){const c=$('vpPh');if(!c||!PH)return;
 // ===== NET2: kendi MQTT istemcimiz + çoklu santral ağı + güvenilir iletim (tahta/telefon ortak) =====
 (function(){
 const MQNS2='dsl-gh/v2/';
-const BROK=window.MQB_OVERRIDE||['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://mqtt.eclipseprojects.io:443/mqtt','wss://test.mosquitto.org:8081'];
+const BROK=window.MQB_OVERRIDE||['wss://public:public@public.cloud.shiftr.io','wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://mqtt.eclipseprojects.io:443/mqtt','wss://test.mosquitto.org:8081'];
 // bağlantı tanılama: hangi santral neden kurulamadı
 window.NETDIAG=window.NETDIAG||{csp:0,fail:{},ok:{}};try{document.addEventListener('securitypolicyviolation',e=>{if(/^wss?:/.test(e.blockedURI||'')||/connect-src/.test(e.violatedDirective||''))NETDIAG.csp++})}catch(e){}
 const te=new TextEncoder(),td=new TextDecoder();
@@ -375,11 +375,12 @@ function pkt(type,flags,body){let len=body.length;const h=[(type<<4)|flags];do{l
 const rid=p=>p+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-3);
 // --- tek santrale tek WebSocket ---
 function Conn(url,cid,subs,will,onmsg,onstate){
+ let WU=url,USR=null,PW=null;{const mm=String(url).match(/^(wss?:\/\/)([^:@\/]+):([^@\/]*)@(.*)$/);if(mm){WU=mm[1]+mm[4];USR=decodeURIComponent(mm[2]);PW=decodeURIComponent(mm[3])}}
  const me={url,up:false,ws:null,dead:false,bo:1000,pt:null,ct:null,buf:new Uint8Array(0)};
- function connect(){if(me.dead)return;let ws;try{ws=new WebSocket(url,'mqtt')}catch(e){return retry()}
+ function connect(){if(me.dead)return;let ws;try{ws=new WebSocket(WU,'mqtt')}catch(e){return retry()}
   me.ws=ws;ws.binaryType='arraybuffer';me.buf=new Uint8Array(0);
   clearTimeout(me.ct);me.ct=setTimeout(()=>{if(!me.up){try{ws.close()}catch(e){}}},9000);
-  ws.onopen=()=>{let fl=2,body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid)];if(will){fl|=4;const wb=te.encode(will.payload);body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid),...mstr(will.topic),...u16(wb.length),...wb]}body[7]=fl;ws.send(pkt(1,0,new Uint8Array(body)))};
+  ws.onopen=()=>{let fl=2,body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid)];if(will){fl|=4;const wb=te.encode(will.payload);body=[...mstr('MQTT'),4,0,...u16(30),...mstr(cid),...mstr(will.topic),...u16(wb.length),...wb]}if(USR!=null){fl|=0x80;body=body.concat(mstr(USR))}if(PW!=null){fl|=0x40;body=body.concat(mstr(PW))}body[7]=fl;ws.send(pkt(1,0,new Uint8Array(body)))};
   ws.onmessage=ev=>{const d=new Uint8Array(ev.data);const n=new Uint8Array(me.buf.length+d.length);n.set(me.buf);n.set(d,me.buf.length);me.buf=n;parse()};
   ws.onclose=ws.onerror=()=>{try{if(!me.up)NETDIAG.fail[url]=(NETDIAG.fail[url]||0)+1}catch(e){}if(me.ws!==ws)return;me.ws=null;clearInterval(me.pt);if(me.up){me.up=false;onstate&&onstate(me)}retry()}}
  function parse(){for(;;){const b=me.buf;if(b.length<2)return;let i=1,len=0,mul=1,ok=false;while(i<b.length&&i<5){const c=b[i++];len+=(c&127)*mul;mul*=128;if(!(c&128)){ok=true;break}}if(!ok||b.length<i+len)return;const type=b[0]>>4,fl=b[0]&15,body=b.slice(i,i+len);me.buf=b.slice(i+len);
